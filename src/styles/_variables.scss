@@ -1,0 +1,25 @@
+// Fonts
+$baseFontSize: 1.6rem;
+$baseLineHeight: 1.5;
+$defaultFont: 'Open Sans', sans-serif;
+$headingFont: 'Roboto Slab', serif;
+$brandFont: 'Montserrat', sans-serif;
+
+// Colors
+$primaryDark: #19FFAF;
+$primaryLight: #9AFFDC;
+$secondaryDark: #B22200;
+$secondaryLight: #FF3100;
+$textColorDark: #333;
+$textColorLight: #eee;
+
+// Spacing and Sizes
+$spacing-xl: $baseFontSize * 2;
+$spacing-lg: $baseFontSize * 1.5;
+$spacing-md: $baseFontSize;
+$spacing-sm: $baseFontSize / 1.5;
+$spacing-xs: $baseFontSize / 2;
+
+// Breakpoints
+$breakpoint-md: 550px;
+$breakpoint-lg: 825px;

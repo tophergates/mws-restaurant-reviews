@@ -1,0 +1,62 @@
+.restaurant-filters {
+  display: flex;
+  flex-direction: column;
+  background: rgba($textColorLight, 0.25);
+  padding: $spacing-xs;
+
+  .filter-title {
+    border: 0;
+    clip: rect(0,0,0,0);
+    height: 1px;
+    margin: -1px;
+    overflow: hidden;
+    padding: 0;
+    position: absolute;
+    width: 1px;
+  }
+}
+
+.filters {
+  display: flex;
+  flex-direction: column;
+
+  .row {
+    display: flex;
+    padding: $spacing-xs / 2;
+  }
+  
+  label {
+    font-weight: bold;
+    flex: 1 0 30%;
+  }
+  
+  select {
+    border: 1px solid rgba($textColorDark, 0.35);
+    color: $textColorDark;
+    flex: 1 0 45%;
+  }
+  
+  select:focus, select:active {
+    background: $primaryLight;
+    border-color: darken($primaryLight, 50%);
+    color: $textColorDark;
+    outline: none;
+  }
+
+  @media screen and (min-width: $breakpoint-md) {
+    flex-direction: row;
+  
+    .row {
+      padding: $spacing-xs 0;
+      margin-right: $spacing-sm;
+    }
+  
+    label {
+      flex: 1 0 auto;
+    }
+  
+    select {
+      margin: 0 $spacing-sm;
+    }
+  }
+}

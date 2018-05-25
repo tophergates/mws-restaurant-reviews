@@ -1,0 +1,41 @@
+.restaurant__reviews-container {
+  padding: $spacing-xs;
+}
+
+.restaurant__review {
+  border: 1px solid rgba($textColorDark, 0.25);
+  border-radius: $spacing-xs;
+  margin-bottom: 2rem;
+
+  .review__top {
+    background: $textColorDark;
+    border-radius: $spacing-xs $spacing-xs 0 0;
+    color: $textColorLight;
+    padding: $spacing-xs;
+
+    .review__username {
+      display: inline-block;
+      text-transform: uppercase;
+      font-size: $spacing-md;
+    }
+
+    .star-rating {
+      float: right;
+      margin: 0;
+      padding: 0;
+    }
+  }
+
+  .review__body {
+    padding: $spacing-xs;
+  }
+
+  .review__date {
+    color: lighten($textColorDark, 25%);
+    font-style: italic;
+  }
+
+  .review__comment {
+    margin: $spacing-xs 0;
+  }
+}

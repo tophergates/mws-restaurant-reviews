@@ -1,0 +1,99 @@
+.restaurants {
+  height: auto;
+  margin-bottom: $spacing-md;
+  padding: $spacing-sm;
+
+  .restaurant-count {
+    background: rgba($textColorLight, 0.5);
+    border: 1px solid rgba(darken($textColorLight, 25%), 0.25);
+    border-radius: 0.3rem;  
+    padding: $spacing-xs;
+    margin-bottom: $spacing-md;
+  
+    .restaurant-count__text {
+      font-weight: bold;
+    }
+  }
+}
+
+.restaurants-list {
+  display: grid;
+  grid-row-gap: 3rem;
+  grid-column-gap: 3rem;
+  grid-template-columns: repeat(auto-fill, minmax(26.2rem, 1fr));
+}
+
+.restaurants-list__item {
+  background: rgba($textColorLight, 0.65);
+  border: 1px solid rgba($textColorDark, 0.25);
+  border-radius: $spacing-lg 0 $spacing-lg 0;
+  box-shadow: 0 0 1rem rgba($textColorDark, 0.5);
+  display: flex;
+  flex-direction: column;
+  min-height: 30rem;
+  position: relative;
+
+  .restaurant-item__image {
+    border-radius: $spacing-lg 0 0 0;
+  }
+  
+  .restaurant-item__info {
+    background: $textColorLight;
+    border-top: 1px solid rgba($textColorDark, 0.75);
+    border-radius: 0 0 $spacing-lg 0;
+    color: $textColorDark;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    justify-content: space-evenly;
+    padding: $spacing-xs $spacing-sm;
+  }
+  
+  .restaurant-item__title {
+    color: $textColorDark;
+    font-size: 2rem;
+    text-align: center;
+    text-transform: uppercase;
+  }
+  
+  .restaurant-item___address,
+  .restaurant-item__neighborhood {
+    color: darken($textColorLight, 65%);
+    font-size: 1.4rem;
+  }
+
+  .restaurant-item__review {
+    display: block;
+    font-size: 1.6rem;
+    font-weight: normal;
+
+    &::before {
+      color: #ffa500;
+      content: '\2605';
+      padding-right: 0.5rem;
+      position: relative;
+      top: -0.1rem;
+    }
+  }
+  
+  .restaurant-item__detail-link {
+    background: $secondaryDark;
+    border: 1px solid rgba(darken($secondaryDark, 50%), 0.25);
+    border-radius: 0.3rem;
+    color: lighten($textColorLight, 50%);
+    display: block;
+    margin: $spacing-md auto $spacing-xs auto;
+    padding: $spacing-xs;
+    text-align: center;
+    transition: all 0.3s ease;
+    width: 50%;
+  }
+  
+  .restaurant-item__detail-link:focus,
+  .restaurant-item__detail-link:active,
+  .restaurant-item__detail-link:hover {
+    background: $secondaryLight;
+    box-shadow: 0 0 $spacing-sm rgba($textColorDark, 0.9);
+    outline: none;
+  }
+}

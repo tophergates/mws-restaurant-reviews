@@ -1,0 +1,44 @@
+.breadcrumbs {
+  background: rgba($textColorLight, 0.25);
+  border-bottom: 1px inset rgba($textColorDark, 0.25);
+  padding: $spacing-sm;
+}
+
+.breadcrumbs__nav-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.breadcrumbs__nav-item {
+  display: inline;
+
+  &:first-of-type::after {
+    display: inline-block;
+    margin: 0 $spacing-xs;
+    transform: rotate(15deg);
+    border-right: 0.125rem solid currentColor;
+    height: 1.2rem;
+    content: '';
+  }
+
+  &[aria-current="page"] {
+    color: $textColorDark;
+    font-weight: bold;
+    text-decoration: none;
+  
+    &::after {
+      content: '';
+    }
+  }
+}
+
+.breadcrumbs__link {
+  color: $secondaryLight;
+
+  &:active,
+  &:focus {
+    outline: none;
+    text-decoration: underline;
+  }
+}

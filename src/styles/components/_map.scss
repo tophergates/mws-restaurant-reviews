@@ -1,0 +1,52 @@
+.map-container {
+  border: 1px inset rgba($textColorDark, 0.35);
+  display: flex;
+  flex: 1 0 auto;
+}
+
+.map {
+  background-color: darken($textColorLight, 5%);
+  flex: 1 0 auto;
+  height: auto;
+  min-height: 40rem;
+  opacity: 1;
+  transition: opacity 1s ease;
+
+  .map__loading {
+    color: rgba($textColorDark, 0.85);
+    display: block;
+    font-weight: bold;
+    left: 50%;
+    position: absolute;
+    top: 50%;
+    transform: translate(-50%, -50%);
+  }
+}
+
+/* MAP INFOWINDOWS */
+.infoWindow {
+  max-width: 50vmin;
+
+  .infoWindow__title {
+    width: 100%;
+  }
+  
+  .infoWindow__image {
+    max-width: 100%;
+  }
+  
+  .infoWindow__address {
+    font-size: 1.4rem;
+    margin-bottom: $spacing-sm;
+  }
+  
+  .infoWindow__link {
+    color: $secondaryDark;
+    font-weight: bold;
+    text-decoration: underline;
+  }
+
+  @media screen and (min-width: $breakpoint-md) {
+    max-width: 30vmin;
+  }
+}

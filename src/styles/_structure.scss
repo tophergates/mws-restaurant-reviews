@@ -1,0 +1,115 @@
+/* GENERAL SITE STRUCTURE */
+html,
+body {
+	height: 100%;
+	margin: 0;
+}
+
+body {
+  background: lighten($textColorLight, 10%);
+  color: $textColorDark;
+  display: flex;
+	flex-direction: column;
+  font-family: $defaultFont;
+  font-size: 160%;
+  line-height: $baseLineHeight;
+  min-width: 32rem;
+  overflow-x: hidden;
+}
+
+a,
+a:link {
+  text-decoration: none;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: $headingFont;
+	margin: 0;
+	padding: 0;
+}
+
+p {
+  margin: 0;
+  padding: 0;
+}
+
+ol, ul {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+/* SKIP LINK */
+.skip, .skip:link {
+  background: $textColorLight;
+  border-radius: 0 0.3rem 0.3rem 0;
+  color: $textColorDark;
+  left: -100%;
+  position: absolute;
+  text-decoration: underline;
+  top: $spacing-md;
+  transition: left 0.3s ease;
+  z-index: 9999;
+
+  &:focus,
+  &:active {
+    left: 0;
+    outline: none;
+    padding: $spacing-xs;
+    position: absolute;
+    transition: left 0.3s ease;
+  }
+}
+
+/* HEADER */
+.header {
+  background: $secondaryDark;
+  border-bottom: 1px solid rgba($textColorDark, 0.25);
+  box-shadow: 0 $spacing-xs $baseFontSize rgba($textColorDark, 0.65);
+  z-index: 1000;
+}
+
+.brand {
+  font-family: $brandFont;
+  padding: $spacing-sm 0;
+  text-align: center;
+
+  .brand__link {
+    color: rgba($textColorLight, 0.95);
+    text-shadow: -0.25rem 0.2rem 5rem rgba($secondaryDark, 0.2);
+  }
+  
+  .brand__link:active,
+  .brand__link:focus {
+    outline: 0;
+    text-shadow: 0 0 $spacing-xl rgba($textColorDark, 0.95);
+  }
+
+  @media screen and (min-width: $breakpoint-lg) {
+    padding: 0 $spacing-sm;
+    text-align: left;
+  }
+}
+
+/* MAIN */
+.main {
+  display: flex;
+  flex: 1 0 auto;
+  flex-direction: column;
+
+  @media screen and (min-width: $breakpoint-lg) {
+    margin-bottom: $spacing-xl;
+  }
+}
+
+/* FOOTER */
+.footer {
+  background: $textColorLight;
+  border-top: 1px solid rgba($textColorDark, 0.25);
+  padding: $spacing-sm;
+}
