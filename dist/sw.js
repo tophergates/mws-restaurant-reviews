@@ -1,4 +1,4 @@
-const CACHE_NAME = 'restaurant-reviews-sw-v3';
+const CACHE_NAME = 'restaurant-reviews-sw-v1';
 const PREFETCH_CACHE = [
   '/mws-restaurant-reviews/',
   '/mws-restaurant-reviews/restaurant.html',
@@ -86,7 +86,7 @@ self.addEventListener('fetch', event => {
    *      otherwise fetch the resource from the network
    *        - then put the fetched resource into the cache and return it
    */
-  if (event.request.method === 'GET' && location.protocol === 'https:') {
+  if (event.request.method === 'GET' && !event.request.url.includes('chrome-extension')) {
     event.respondWith(
       caches.open(CACHE_NAME)
         .then(cache => {
