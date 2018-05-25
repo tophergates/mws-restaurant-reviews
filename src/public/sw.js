@@ -1,22 +1,22 @@
 const CACHE_NAME = 'restaurant-reviews-sw-v1';
 const PREFETCH_CACHE = [
-  '/',
-  '/restaurant.html',
-  '/data/restaurants.json',
-  '/css/style.min.css',
-  '/js/app.min.js',
-  '/js/home.min.js',
-  '/js/restaurant.min.js',
-  '/images/1.jpg',
-  '/images/2.jpg',
-  '/images/3.jpg',
-  '/images/4.jpg',
-  '/images/5.jpg',
-  '/images/6.jpg',
-  '/images/7.jpg',
-  '/images/8.jpg',
-  '/images/9.jpg',
-  '/images/10.jpg',
+  '/mws-restaurant-reviews/',
+  '/mws-restaurant-reviews/restaurant.html',
+  '/mws-restaurant-reviews/data/restaurants.json',
+  '/mws-restaurant-reviews/css/style.min.css',
+  '/mws-restaurant-reviews/js/app.min.js',
+  '/mws-restaurant-reviews/js/home.min.js',
+  '/mws-restaurant-reviews/js/restaurant.min.js',
+  '/mws-restaurant-reviews/images/1.jpg',
+  '/mws-restaurant-reviews/images/2.jpg',
+  '/mws-restaurant-reviews/images/3.jpg',
+  '/mws-restaurant-reviews/images/4.jpg',
+  '/mws-restaurant-reviews/images/5.jpg',
+  '/mws-restaurant-reviews/images/6.jpg',
+  '/mws-restaurant-reviews/images/7.jpg',
+  '/mws-restaurant-reviews/images/8.jpg',
+  '/mws-restaurant-reviews/images/9.jpg',
+  '/mws-restaurant-reviews/images/10.jpg',
 
   // Fonts
   'https://fonts.googleapis.com/css?family=Roboto:300,400,500,700',
@@ -86,7 +86,7 @@ self.addEventListener('fetch', event => {
    *      otherwise fetch the resource from the network
    *        - then put the fetched resource into the cache and return it
    */
-  if (event.request.method === 'GET') {
+  if (event.request.method === 'GET' && !event.request.url.includes('chrome-extension')) {
     event.respondWith(
       caches.open(CACHE_NAME)
         .then(cache => {

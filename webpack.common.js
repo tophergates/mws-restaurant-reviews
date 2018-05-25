@@ -68,9 +68,9 @@ module.exports ={
       { from: 'src/public/images', to: './images' },
       { 
         from: 'src/public/sw.js',
-        transform: function(fileContent, filePath) {
-          return uglifyJS.minify(fileContent.toString()).code.toString();
-        }
+        // transform: function(fileContent, filePath) {
+        //   return uglifyJS.minify(fileContent.toString()).code.toString();
+        // }
       }
     ])
   ]
