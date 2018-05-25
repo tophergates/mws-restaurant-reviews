@@ -1,5 +1,3 @@
-import config from '../config';
-
 /**
  * Generic page controller that determines which page to load.
  * This top-level controller allows for lazy loading page-specific
@@ -30,15 +28,7 @@ const PageController = {
    * Determines the current route based on the URI
    */
   currentRoute() {
-    let route = window.location.pathname.replace(/\.[^/.]+$/, '');
-    let prefix = '';
-
-    if (config.MODE === 'production') {
-      prefix = '/mws-restaurant-reviews'
-    }
-
-    
-    return prefix ? route.replace(prefix, '') : route;
+    return window.location.pathname.replace(/\.[^/.]+$/, '');
   }
 };
 
