@@ -4,7 +4,15 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title><%= htmlWebpackPlugin.options.title %></title>
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="author" content="Christopher Gates">
+    <meta name="description" content="Restaurant reviews application as part of the Grow with Google Scholarship for Mobile Web Specialists">
+    <meta name="theme-color" content="#B22200">
+
+    <link rel="manifest" href="/manifest.json">
+    <link rel="icon" type="image/png" href="/favicon-32x32.png" sizes="32x32">
+    <link rel="icon" type="image/png" href="/favicon-16x16.png" sizes="16x16">
   </head>
   <body>
     <a class="skip" href="#restaurants" title="Skip to primary page content">Skip to content</a>
@@ -32,13 +40,13 @@
         </form>
       </section>
       <section class="map-container">
-        <div class="map" id="map" aria-role="application">
+        <div class="map" id="map" role="application" aria-describedBy="restaurants-list" aria-label="Map of restaurants">
           <span class="map__loading">Loading Map</span>
         </div>
       </section>
       <section class="restaurants" id="restaurants">
         <p class="restaurant-count"></p>
-        <ul class="restaurants-list"></ul>
+        <ul class="restaurants-list" id="restaurants-list"></ul>
       </section>
     </main>
     <footer class="footer">

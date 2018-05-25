@@ -245,7 +245,11 @@ const IndexController = {
   },
 
   loadMap() {
-    this.map = new Map();
+    this.map = new Map(null, null, () => {
+      // Add a title to the map iframe
+      const mapFrame = document.querySelector('.map iframe');
+      mapFrame.title = "Restaurant Map Markers"
+    });
     this.restaurants && this.updateMap();
   },
 

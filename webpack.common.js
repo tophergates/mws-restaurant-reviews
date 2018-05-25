@@ -52,11 +52,13 @@ module.exports ={
     // Generate HTML files (index.html and restaurant.html)
     new HtmlWebpackPlugin({
       title: 'Restaurant Reviews',
+      favicon: 'src/public/favicon.ico',
       template: 'src/public/index.html',
       minify: minifyHtmlOptions
     }),
     new HtmlWebpackPlugin({
       title: 'Restaurant Info',
+      favicon: 'src/public/favicon.ico',
       filename: 'restaurant.html',
       template: 'src/public/restaurant.html',
       minify: minifyHtmlOptions
@@ -66,12 +68,15 @@ module.exports ={
     new CopyWebpackPlugin([
       { from: 'src/public/data', to: './data' },
       { from: 'src/public/images', to: './images' },
+      { from: 'src/public/manifest.json' },
+      { from: 'src/public/favicon-16x16.png'},
+      { from: 'src/public/favicon-32x32.png'},
       { 
         from: 'src/public/sw.js',
         transform: function(fileContent, filePath) {
           return uglifyJS.minify(fileContent.toString()).code.toString();
         }
-      }
+      },
     ])
   ]
 }

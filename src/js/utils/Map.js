@@ -1,6 +1,5 @@
 class Map {
-  constructor(mount, options) {
-    mount = mount || document.getElementById('map');
+  constructor(mount, options, callback) {
     const defaultOptions = { 
       zoom: 12, 
       center: {
@@ -10,12 +9,18 @@ class Map {
       disableDefaultUI: true,
       scrollwheel: false,
     };
-
+    
     this._options = Object.assign({}, defaultOptions, options);
+    this.element = mount || document.getElementById('map');
 
-    this._googleMap = new google.maps.Map(mount, this._options);
+    this._googleMap = new google.maps.Map(this.element, this._options);
     this.markers = [];
     this.lastMarker = null;
+
+    // Expose the ability to run a callback once map has loaded
+    if (callback) {
+      google.maps.event.addDomListenerOnce(window, 'load', callback);
+    }
   }
 
   get GoogleMap() {

@@ -1,12 +1,16 @@
-const CACHE_NAME = 'restaurant-reviews-sw-v1';
+const CACHE_NAME = 'restaurant-reviews-sw-v2';
 const PREFETCH_CACHE = [
   '/',
   '/restaurant.html',
-  '/data/restaurants.json',
+  '/favicon-16x16.png',
+  '/favicon-32x32.png',
+  '/favicon.ico',
+  '/manifest.json',
   '/css/style.min.css',
   '/js/app.min.js',
   '/js/home.min.js',
   '/js/restaurant.min.js',
+  '/data/restaurants.json',
   '/images/1.jpg',
   '/images/2.jpg',
   '/images/3.jpg',
