@@ -1,6 +1,6 @@
 # RESTAURANT REVIEWS
 
-***DEMO***: <https://tophergates.github.io/restaurant-reviews>
+***DEMO***: <https://tophergates.github.io/mws-restaurant-reviews/>
 
 The restaurant reviews application is the project required to complete the Mobile Web Specialist Nanodegree offered through Udacity as part of the Grow with Google scholarship program.
 
