@@ -1,7 +1,7 @@
 const registerSW = () => {
   if (!navigator.serviceWorker) return;
 
-  navigator.serviceWorker.register('/mws-restaurant-reviews/sw.js')
+  navigator.serviceWorker.register('/sw.js')
     .then(registration => {
       console.log('Service Worker registered');
     })
