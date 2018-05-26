@@ -1,43 +1,29 @@
-const CACHE_NAME = 'restaurant-reviews-sw-v2';
+const CACHE_NAME = 'restaurant-reviews-sw-v3';
 const PREFETCH_CACHE = [
   '/',
   '/restaurant.html',
-  '/favicon-16x16.png',
-  '/favicon-32x32.png',
   '/favicon.ico',
-  '/manifest.json',
   '/css/style.min.css',
   '/js/app.min.js',
   '/js/home.min.js',
   '/js/restaurant.min.js',
   '/data/restaurants.json',
-  '/images/1.jpg',
-  '/images/2.jpg',
-  '/images/3.jpg',
-  '/images/4.jpg',
-  '/images/5.jpg',
-  '/images/6.jpg',
-  '/images/7.jpg',
-  '/images/8.jpg',
-  '/images/9.jpg',
-  '/images/10.jpg',
 
   // Fonts
-  'https://fonts.googleapis.com/css?family=Roboto:300,400,500,700',
   'https://fonts.googleapis.com/css?family=Montserrat|Noto+Sans|Roboto+Slab',
-  'https://fonts.gstatic.com/s/roboto/v18/KFOmCnqEu92Fr1Mu4mxKKTU1Kg.woff2',
-  'https://fonts.gstatic.com/s/roboto/v18/KFOlCnqEu92Fr1MmEU9fBBc4AMP6lQ.woff2',
+  // 'https://fonts.gstatic.com/s/roboto/v18/KFOmCnqEu92Fr1Mu4mxKKTU1Kg.woff2',
+  // 'https://fonts.gstatic.com/s/roboto/v18/KFOlCnqEu92Fr1MmEU9fBBc4AMP6lQ.woff2',
 
   // Google Maps
-  'https://maps.gstatic.com/mapfiles/openhand_8_8.cur',
-  'https://maps.gstatic.com/mapfiles/transparent.png',
-  'https://maps.gstatic.com/mapfiles/api-3/images/google4.png',
-  'https://maps.gstatic.com/mapfiles/api-3/images/mapcnt6.png',
-  'https://maps.gstatic.com/mapfiles/api-3/images/sv9.png',
-  'https://maps.gstatic.com/mapfiles/api-3/images/tmapctrl.png',
-  'https://maps.gstatic.com/mapfiles/api-3/images/cb_scout5.png',
-  'https://maps.gstatic.com/mapfiles/api-3/images/tmapctrl4.png',
-  'https://maps.gstatic.com/mapfiles/mv/imgs8.png'
+  // 'https://maps.gstatic.com/mapfiles/openhand_8_8.cur',
+  // 'https://maps.gstatic.com/mapfiles/transparent.png',
+  // 'https://maps.gstatic.com/mapfiles/api-3/images/google4.png',
+  // 'https://maps.gstatic.com/mapfiles/api-3/images/mapcnt6.png',
+  // 'https://maps.gstatic.com/mapfiles/api-3/images/sv9.png',
+  // 'https://maps.gstatic.com/mapfiles/api-3/images/tmapctrl.png',
+  // 'https://maps.gstatic.com/mapfiles/api-3/images/cb_scout5.png',
+  // 'https://maps.gstatic.com/mapfiles/api-3/images/tmapctrl4.png',
+  // 'https://maps.gstatic.com/mapfiles/mv/imgs8.png'
 ];
 
 /**

@@ -332,6 +332,10 @@ const RestaurantController = {
       zoom: 16,
       center: this.restaurant.latlng,
       scrollwheel: false,
+    }, () => {
+      // Add a title to the map iframe
+      const mapFrame = document.querySelector('.map iframe');
+      mapFrame.title = "Restaurant Location";
     });
 
     this.restaurant && this.updateMap();

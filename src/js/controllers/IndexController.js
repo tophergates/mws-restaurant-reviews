@@ -248,7 +248,7 @@ const IndexController = {
     this.map = new Map(null, null, () => {
       // Add a title to the map iframe
       const mapFrame = document.querySelector('.map iframe');
-      mapFrame.title = "Restaurant Map Markers"
+      mapFrame.title = "Restaurant Locations";
     });
     this.restaurants && this.updateMap();
   },
