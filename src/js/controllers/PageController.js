@@ -28,7 +28,7 @@ const PageController = {
    * Determines the current route based on the URI
    */
   currentRoute() {
-    return window.location.pathname.replace(/\.[^/.]+$/, "");
+    return window.location.pathname.replace(/\.[^/.]+$/, '');
   }
 };
 
