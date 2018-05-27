@@ -4,6 +4,8 @@ import Map from '../utils/Map';
 import loadGoogleMaps from '../utils/loadGoogleMaps';
 import getUrlParameter from '../utils/getUrlParameter';
 
+import "../../styles/restaurant.scss";
+
 /**
  * Called when Google Maps API is ready
  * @global
@@ -333,9 +335,7 @@ const RestaurantController = {
       center: this.restaurant.latlng,
       scrollwheel: false,
     }, () => {
-      // Add a title to the map iframe
-      const mapFrame = document.querySelector('.map iframe');
-      mapFrame.title = "Restaurant Location";
+      document.querySelector('#map iframe').title = 'Restaurant Location';
     });
 
     this.restaurant && this.updateMap();

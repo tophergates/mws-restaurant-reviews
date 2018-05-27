@@ -8,7 +8,7 @@ import config from '../config';
 const loadGoogleMaps = (node = document.body) => {
   const script = document.createElement('script');
 
-  script.setAttribute('src', `https://maps.googleapis.com/maps/api/js?key=${config.MAPS_KEY}&libraries=places&callback=initMap`);
+  script.setAttribute('src', `https://maps.googleapis.com/maps/api/js?key=${config.MAPS_KEY}&callback=initMap`);
   script.setAttribute('async', '');
   script.setAttribute('defer', '');
   node.appendChild(script);

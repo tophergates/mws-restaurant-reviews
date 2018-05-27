@@ -3,6 +3,8 @@ import DBHelper from '../utils/DBHelper';
 import Map from '../utils/Map';
 import loadGoogleMaps from '../utils/loadGoogleMaps';
 
+import "../../styles/home.scss";
+
 /**
  * Unfortunately we have to attach this function to the global scope.
  * This is a limitation of Google Maps.

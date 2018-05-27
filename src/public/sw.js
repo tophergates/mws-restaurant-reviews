@@ -1,6 +1,7 @@
-const CACHE_NAME = 'restaurant-reviews-sw-v3';
+const CACHE_NAME = 'restaurant-reviews-sw-v4';
 const PREFETCH_CACHE = [
   '/',
+  '/index.html',
   '/restaurant.html',
   '/favicon.ico',
   '/css/style.min.css',
@@ -8,22 +9,8 @@ const PREFETCH_CACHE = [
   '/js/home.min.js',
   '/js/restaurant.min.js',
   '/data/restaurants.json',
-
-  // Fonts
   'https://fonts.googleapis.com/css?family=Montserrat|Noto+Sans|Roboto+Slab',
-  // 'https://fonts.gstatic.com/s/roboto/v18/KFOmCnqEu92Fr1Mu4mxKKTU1Kg.woff2',
-  // 'https://fonts.gstatic.com/s/roboto/v18/KFOlCnqEu92Fr1MmEU9fBBc4AMP6lQ.woff2',
-
-  // Google Maps
-  // 'https://maps.gstatic.com/mapfiles/openhand_8_8.cur',
-  // 'https://maps.gstatic.com/mapfiles/transparent.png',
-  // 'https://maps.gstatic.com/mapfiles/api-3/images/google4.png',
-  // 'https://maps.gstatic.com/mapfiles/api-3/images/mapcnt6.png',
-  // 'https://maps.gstatic.com/mapfiles/api-3/images/sv9.png',
-  // 'https://maps.gstatic.com/mapfiles/api-3/images/tmapctrl.png',
-  // 'https://maps.gstatic.com/mapfiles/api-3/images/cb_scout5.png',
-  // 'https://maps.gstatic.com/mapfiles/api-3/images/tmapctrl4.png',
-  // 'https://maps.gstatic.com/mapfiles/mv/imgs8.png'
+  'https://maps.googleapis.com/maps/api/js?key=AIzaSyCdhHwjurnlDda3XtpLrysWGsobzpRdpM8&callback=initMap'
 ];
 
 /**

@@ -22,7 +22,11 @@ const minifyHtmlOptions = {
 
 module.exports ={
   entry: {
-    app: './src/index.js'
+    app: [
+      './src/index.js',
+      'style-loader/lib/addStyles',
+      'css-loader/lib/css-base'
+    ]
   },
   output: {
     filename: './js/[name].min.js',

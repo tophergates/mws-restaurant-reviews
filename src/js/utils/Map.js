@@ -17,9 +17,11 @@ class Map {
     this.markers = [];
     this.lastMarker = null;
 
-    // Expose the ability to run a callback once map has loaded
+    // Dirty, dirty hack to delay a callback
+    // Presumably the map will have loaded within 
+    // a second?
     if (callback) {
-      google.maps.event.addDomListenerOnce(window, 'load', callback);
+      setTimeout(callback, 1000);
     }
   }
 

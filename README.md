@@ -14,7 +14,7 @@ To run the application on your localhost, clone this repository and then:
 
   ```javascript
   export default {
-    HOST: '0.0.0.0',
+    HOST: 'http://localhost',
     PORT: '8080',
     MAPS_KEY: 'ENTER YOUR MAP KEY HERE',
   };
@@ -54,9 +54,9 @@ Code should adhere to the Udacity HTML, CSS, JavaScript, and Git [style guidelin
 
 **Make the site accessible.** The application should be accessible.
 
-- [ ] Ensure that ```alt``` attributes are present and descriptive for images.
+- [X] Ensure that ```alt``` attributes are present and descriptive for images.
 
-- [ ] Add screen-reader-only attributes when appropriate to add useful supplementary text.
+- [X] Add screen-reader-only attributes when appropriate to add useful supplementary text.
 
 - [X] Use semantic markup where possible and ```aria``` attributes when semantic markup is not feasible.
 
@@ -78,7 +78,7 @@ Code should adhere to the Udacity HTML, CSS, JavaScript, and Git [style guidelin
 
 |   | CRITERIA | SPECIFICATIONS |
 | - | -------- | -------------- |
-| ✖ | Are images accessible? | All content-related images include appropriate alternate text that clearly describes the content of the image. |
+| ✓ | Are images accessible? | All content-related images include appropriate alternate text that clearly describes the content of the image. |
 | ✓ | Is focus used appropriately to allow easy navigation of the site? | Focus is appropriately managed allowing users to noticeably tab through each of the important elements of the page. Modal or interstitial windows appropriately lock focus. |
 | ✓ | Are site elements defined semantically? | Elements on the page use the appropriate semantic elements. For those element in which a semantic element is not available, appropriate ```aria-role```s are defined. |
 
