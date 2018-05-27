@@ -1,4 +1,4 @@
-const CACHE_NAME = 'restaurant-reviews-sw-v4';
+const CACHE_NAME = 'restaurant-reviews-sw-v1';
 const PREFETCH_CACHE = [
   '/',
   '/index.html',
@@ -10,7 +10,6 @@ const PREFETCH_CACHE = [
   '/js/restaurant.min.js',
   '/data/restaurants.json',
   'https://fonts.googleapis.com/css?family=Montserrat|Noto+Sans|Roboto+Slab',
-  'https://maps.googleapis.com/maps/api/js?key=AIzaSyCdhHwjurnlDda3XtpLrysWGsobzpRdpM8&callback=initMap'
 ];
 
 /**
