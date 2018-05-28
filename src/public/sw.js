@@ -49,7 +49,7 @@ self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(RRCACHE.name)
       .then(cache => {
-        return cache.addAll(RRCACHE.prefetch.concat(RRCACHE.whitelist));
+        return cache.addAll(RRCACHE.prefetch);
       })
   );
 });
