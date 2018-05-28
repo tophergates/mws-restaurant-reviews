@@ -1,3 +1,5 @@
+import config from '../config';
+
 /**
  * Generic page controller that determines which page to load.
  * This top-level controller allows for lazy loading page-specific
