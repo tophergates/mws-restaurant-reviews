@@ -1,4 +1,4 @@
-const VERSION = 'v1';
+const VERSION = 'v2';
 const RRCACHE = {
   name: `rr-${VERSION}`,
 
@@ -88,9 +88,9 @@ self.addEventListener('fetch', event => {
                 .then(networkResponse => {
                   // Dont cache some resources from Google Maps,
                   // or the cache will quickly fill up!
-                  if (RRCACHE.whitelist.includes(event.request.url)) {
+                  // if (RRCACHE.whitelist.includes(event.request.url)) {
                     cache.put(event.request, networkResponse.clone());
-                  }
+                  // }
 
                   return networkResponse;
                 })
