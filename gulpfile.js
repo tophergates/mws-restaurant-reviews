@@ -1,22 +1,53 @@
 const gulp = require('gulp');
-// const imagemin = require('gulp-imagemin');
 const image = require('gulp-image');
+const resize = require('gulp-image-resize');
+const rename = require('gulp-rename');
 
-// gulp.task('default', () => {
-//   return gulp.src('dist/images/**/*')
-//     .pipe(imagemin([
-//       imagemin.jpegtran({
-//         progressive: true
-//       }),
-//       imagemin.optipng({optimizationLevel: 5}),
-//     ], {
-//       verbose: true
-//     }))
-//     .pipe(gulp.dest('dist/images'))
-// });
+// The following only needed to be run once on all images.
 
-gulp.task('default', function () {
-  return gulp.src('dist/images/**/*')
+/**
+ * Resize Old Images
+ */
+gulp.task('resize', function(done) {
+  // Large
+  gulp.src('src/public/old_images/**/*.jpg')
+    .pipe(resize({
+      upscale: false,
+      width: 800,
+    }))
+    .pipe(rename(function(path) {
+      path.basename += "-large";
+    }))
+    .pipe(gulp.dest('src/public/images'));
+
+  // Medium
+  gulp.src('src/public/old_images/**/*.jpg')
+    .pipe(resize({
+      percentage: 75
+    }))
+    .pipe(rename(function(path) {
+      path.basename += "-medium";
+    }))
+    .pipe(gulp.dest('src/public/images'));
+
+  // Small
+  gulp.src('src/public/old_images/**/*.jpg')
+    .pipe(resize({
+      percentage: 50
+    }))
+    .pipe(rename(function(path) {
+      path.basename += "-small";
+    }))
+    .pipe(gulp.dest('src/public/images'));
+
+  return done();
+});
+
+/**
+ * Optimize images
+ */
+gulp.task('optimize', function(done) {
+  gulp.src('src/public/images/**/*')
     .pipe(image({
       pngquant: true,
       optipng: false,
@@ -28,5 +59,9 @@ gulp.task('default', function () {
       svgo: false,
       concurrent: 10,
     }))
-    .pipe(gulp.dest('dist/images'));
+    .pipe(gulp.dest('src/public/images'));
+
+    return done();
 });
+
+gulp.task('default', gulp.series('resize', 'optimize'));

@@ -1,9 +1,10 @@
-import config from '../config';
 import DBHelper from '../utils/DBHelper';
 import Map from '../utils/Map';
-import loadGoogleMaps from '../utils/loadGoogleMaps';
-
-import "../../styles/home.scss";
+import {
+  loadGoogleMaps, 
+  makeImage, 
+  makeStarRating
+} from '../utils';
 
 /**
  * Unfortunately we have to attach this function to the global scope.
@@ -39,24 +40,52 @@ const populateSelectBox = (selectEl, values) => {
 };
 
 /**
+ * Creates an image inside of a container
+ * Displays a loading spinner before the image 
+ * has finished loading.
+ */
+const createImage = ({ id, altText }, className) => {
+  const imageContainer = document.createElement('div');
+  const loadingIndicator = document.createElement('span');
+
+  imageContainer.className = 'image__container';
+  loadingIndicator.className = 'spinner';
+  imageContainer.appendChild(loadingIndicator);
+
+  makeImage({
+    id,
+    src: DBHelper.restaurantImgUrl({id, size: 'small' }),
+    sizes: "100vw",
+    alt: altText,
+    className
+  }, image => {
+    // remove the loading spinner
+    loadingIndicator.parentNode && 
+      loadingIndicator.parentNode.removeChild(loadingIndicator);
+    
+    // add the image
+    imageContainer.appendChild(image);
+  });
+
+  return imageContainer;
+};
+
+/**
  * Generates the html for one restaurant list item.
  */
 const createRestaurant = restaurant => {
   // Create the necessary elements for later
   const span = document.createElement('span');
   const li = document.createElement('li');
-  const image = document.createElement('img');
   const body = document.createElement('div');
   const name = document.createElement('h2');
   const neighborhood = span.cloneNode();
   const address = document.createElement('address');
   const more = document.createElement('a');
-  const avgReview = span.cloneNode();
+  let avgReview;
 
-  // Setup the image
-  image.className = 'restaurant-item__image';
-  image.src = DBHelper.restaurantImgUrl(restaurant);
-  image.setAttribute('alt', restaurant.altText);
+  // Give the list item a class
+  li.classList.add('restaurants-list__item');
 
   // Content body
   body.className = 'restaurant-item__info';
@@ -74,18 +103,9 @@ const createRestaurant = restaurant => {
   address.textContent = restaurant.address;
 
   // Average Review
-  avgReview.className = 'restaurant-item__review';
-  DBHelper.calculateAverageReview(restaurant.id).then(score => {
-    avgReview.textContent = score;
-    avgReview.setAttribute('aria-label', 'Average review');
-
-    // Append items to the content body
-    body.append(name);
-    body.append(neighborhood);
-    body.append(address);
-    name.append(avgReview);
-    body.append(more);
-  });
+  // avgReview.className = 'restaurant-item__review';
+  avgReview = makeStarRating(restaurant.reviews);
+  avgReview.setAttribute('aria-label', 'Average review');
 
   // View More button
   more.textContent = 'Details';
@@ -93,14 +113,15 @@ const createRestaurant = restaurant => {
   more.title = `View additional details about ${restaurant.name}`;
   more.className = 'restaurant-item__detail-link';
 
-  // Once the image has loaded, append all elements to the list item
-  image.onload = () => {
-    li.append(image);
-    li.append(body);
-  };
+  // Append content to the body
+  body.append(name);
+  body.append(avgReview);
+  body.append(neighborhood);
+  body.append(address);
+  body.append(more);
 
-  // Give the list item a class and return it
-  li.classList.add('restaurants-list__item');
+  li.append(createImage(restaurant, 'restaurant-item__image'));
+  li.append(body);
 
   return li;
 };
@@ -205,53 +226,49 @@ const IndexController = {
       return;
     }
 
-    const markers = this.restaurants.map(r => ({
-      position: r.latlng,
-      content: {
-        address: r.address,
-        cuisine: r.cuisine_type,
-        photo: DBHelper.restaurantImgUrl(r),
-        altText: r.altText,
-        title: r.name,
-        url: DBHelper.restaurantUrl(r),
-      }
-    }));
+    const markers = this.restaurants.map(r => {
+      const markerContent = document.createDocumentFragment();
+      const image = createImage(r, 'infoWindow__image');
+      const title = document.createElement('h2');
+      const address = document.createElement('address');
+      const link = document.createElement('a');
+
+      // Image
+      markerContent.appendChild(image);
+
+      // Title
+      title.className = 'infoWindow__title';
+      title.textContent = r.name;
+      markerContent.appendChild(title);
+
+      // Address
+      address.className = 'infoWindow__address';
+      address.textContent = r.address;
+      markerContent.appendChild(address);
+
+      // Link
+      link.className = 'infoWindow__link';
+      link.textContent = 'View Details';
+      link.setAttribute('href', DBHelper.restaurantUrl(r));
+      link.setAttribute('title', `View more information about ${r.name}`);
+      markerContent.appendChild(link);
+
+      return {
+        position: r.latlng,
+        content: markerContent
+      };
+    });
 
     this.resetMap();
     this.map.addMarkers(markers, this.handleMapMarkerClick);
   },
 
   handleMapMarkerClick(infoWindow, marker) {
-    const {
-      content: { 
-        title, 
-        photo, 
-        altText,
-        address, 
-        url 
-      }
-    } = marker;
-  
-    // Set content of the info window
-    infoWindow.setContent(`
-      <div class="infoWindow">
-        <img src="${photo}" alt="${altText}" class="infoWindow__image">
-        <h2 class="infoWindow__title">${title}</h2>
-        <address class="infoWindow__address">${address}</address>
-        <a href="${url}" title="View more information about ${title}" class="infoWindow__link">View Details</a>
-      </div>
-    `);
-  
-    // Open the info window
     infoWindow.open(marker.map, marker);
   },
 
   loadMap() {
-    this.map = new Map(null, null, () => {
-      // Add a title to the map iframe
-      const mapFrame = document.querySelector('.map iframe');
-      mapFrame.title = "Restaurant Locations";
-    });
+    this.map = new Map();
     this.restaurants && this.updateMap();
   },
 

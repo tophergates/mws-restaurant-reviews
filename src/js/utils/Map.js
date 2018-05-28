@@ -1,5 +1,5 @@
 class Map {
-  constructor(mount, options, callback) {
+  constructor(mount, options) {
     const defaultOptions = { 
       zoom: 12, 
       center: {
@@ -16,13 +16,6 @@ class Map {
     this._googleMap = new google.maps.Map(this.element, this._options);
     this.markers = [];
     this.lastMarker = null;
-
-    // Dirty, dirty hack to delay a callback
-    // Presumably the map will have loaded within 
-    // a second?
-    if (callback) {
-      setTimeout(callback, 1000);
-    }
   }
 
   get GoogleMap() {
@@ -60,6 +53,11 @@ class Map {
 
     // Create a new infowindow
     const infoWindow = new google.maps.InfoWindow();
+    const wrapper = document.createElement('div');
+
+    wrapper.className = 'infoWindow';
+    wrapper.appendChild(marker.content);
+    infoWindow.setContent(wrapper);
 
     marker.addListener('click', () => {
       // Close the most recently opened infowindow

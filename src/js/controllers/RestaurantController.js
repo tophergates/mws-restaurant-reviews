@@ -1,10 +1,11 @@
-import config from '../config';
 import DBHelper from '../utils/DBHelper';
 import Map from '../utils/Map';
-import loadGoogleMaps from '../utils/loadGoogleMaps';
-import getUrlParameter from '../utils/getUrlParameter';
-
-import "../../styles/restaurant.scss";
+import {
+  loadGoogleMaps,
+  getUrlParameter,
+  makeImage,
+  makeStarRating
+} from '../utils';
 
 /**
  * Called when Google Maps API is ready
@@ -12,18 +13,6 @@ import "../../styles/restaurant.scss";
  */
 self.initMap = () => {
   RestaurantController.loadMap();
-};
-
-/**
- * Calculates average rating percentage
- */
-const averageRating = reviews => {
-  const TOP_RATING = 5;
-  const total = reviews.reduce((acc, review) => {
-    return acc + review.rating;
-  }, 0);
-
-  return (total / (reviews.length * TOP_RATING) * 100);
 };
 
 /**
@@ -66,48 +55,6 @@ const generateHoursHtml = operatingHours => {
 };
 
 /**
- * Generates the stars used for the ratings
- */
-const generateStarsHtml = () => {
-  const RATING_LIMIT = 5;
-  const star = document.createElement('span');
-  const docFrag = document.createDocumentFragment();
-
-  star.textContent = '★';
-  
-  for (let i=RATING_LIMIT; i>0; i--) {
-    let tmp = star.cloneNode(true);
-    docFrag.appendChild(tmp);
-  }
-
-  return docFrag;
-}
-
-/**
- * Generates the HTML output for a star rating
- */
-const generateStarRatingHtml = rating => {
-  const div = document.createElement('div');
-
-  const container = div.cloneNode();
-  const top = div.cloneNode();
-  const bottom = div.cloneNode();
-
-  container.className = 'star-rating__container';
-
-  top.className = 'star-rating__top';
-  top.style.width = `${rating}%`;
-  top.appendChild(generateStarsHtml());
-  container.appendChild(top);
-
-  bottom.className = 'star-rating__bottom';
-  bottom.appendChild(generateStarsHtml());
-  container.appendChild(bottom);
-
-  return container;
-};
-
-/**
  * Generates the HTML output for a review
  */
 const generateReviewHtml = review => {
@@ -132,7 +79,7 @@ const generateReviewHtml = review => {
 
   starRating.className = 'star-rating';
   starRating.setAttribute('aria-label', `User rating: ${review.rating}`);
-  starRating.appendChild(generateStarRatingHtml((review.rating / 5) * 100));
+  starRating.appendChild(makeStarRating([review]));
   reviewTop.appendChild(starRating);
   
   // Review Body
@@ -217,7 +164,8 @@ const RestaurantController = {
     const { restaurantName, restaurantCuisine, restaurantHoursToday } = this.pageElements;
     const { name, cuisine_type: cuisine, operating_hours: operatingHours } = this.restaurant;
     const daysOfTheWeek = Object.keys(operatingHours);
-    const currentDay = daysOfTheWeek[new Date().getDay() - 1];
+    const todayNum = new Date().getDay();
+    const currentDay = daysOfTheWeek[todayNum > 0 ? todayNum - 1 : todayNum];
     
     restaurantName.textContent = name;
     restaurantCuisine.textContent = cuisine;
@@ -229,15 +177,24 @@ const RestaurantController = {
    */
   generateImage() {
     const { restaurantImageContainer } = this.pageElements;
-    const { altText } = this.restaurant;
-    const image = document.createElement('img');
+    const { id, altText } = this.restaurant;
+    const loadingIndicator = document.createElement('span');
+    
+    loadingIndicator.className = 'spinner';
+    restaurantImageContainer.appendChild(loadingIndicator);
 
-    image.src = DBHelper.restaurantImgUrl(this.restaurant);
-    image.alt = altText;
-    image.className = 'restaurant__image';
-    image.onload = event => {
+    makeImage({
+      id,
+      src: DBHelper.restaurantImgUrl({id, size: 'small' }),
+      sizes: "100vw",
+      alt: altText,
+      className: 'restaurant__image',
+    }, image => {
+      loadingIndicator.parentNode && 
+        loadingIndicator.parentNode.removeChild(loadingIndicator);
+      
       restaurantImageContainer.appendChild(image);
-    };
+    });
   },
 
   /**
@@ -246,11 +203,10 @@ const RestaurantController = {
   generateAverageRating() {
     const { restaurantStarRating } = this.pageElements;
     const { reviews } = this.restaurant;
-    const rating = averageRating(reviews);
     const link = document.createElement('a');
 
     // Add stars
-    restaurantStarRating.appendChild(generateStarRatingHtml(rating));
+    restaurantStarRating.appendChild(makeStarRating(reviews));
 
     // Add link
     link.setAttribute('href', '#reviews');

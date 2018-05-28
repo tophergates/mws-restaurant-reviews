@@ -1,4 +1,4 @@
-const CACHE_NAME = 'restaurant-reviews-sw-v1';
+const CACHE_NAME = 'restaurant-reviews-sw-v5';
 const PREFETCH_CACHE = [
   '/',
   '/index.html',

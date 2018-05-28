@@ -1,0 +1,29 @@
+.star-rating__container {
+  unicode-bidi: bidi-override;
+  color: $textColorLight;
+  font-size: 1.6rem;
+  flex: 0 1 8rem;
+  position: relative;
+  text-shadow: 0px 1px 0 $textColorDark;
+
+  .star-rating__top {
+    color: adjust-hue($secondaryLight, 30);
+    display: block;
+    left: 0;
+    overflow: hidden;
+    position: absolute;
+    top: 0;
+    width: 85%; // js will change this
+    z-index: 1;
+  }
+
+  .star-rating__bottom {
+    display: block;
+    z-index: 0;
+  }
+}
+
+.star-rating__link {
+  color: $secondaryLight;
+  margin: 0.3rem 0 0 $spacing-xs;
+}

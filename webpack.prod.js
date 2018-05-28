@@ -11,10 +11,9 @@ module.exports = merge(common, {
     rules: [
       // Extract SASS to CSS file
       {
-        // exclude: /\.useable\.scss$/,
         test: /\.scss$/,
         use: ExtractTextPlugin.extract({
-          fallback: { loader: 'style-loader' },
+          fallback: 'style-loader',
           use: [
             {
               loader: 'css-loader',
@@ -26,17 +25,10 @@ module.exports = merge(common, {
           ]
         })
       },
-      // {
-      //   test: /\.useable\.scss$/,
-      //   use: ['style-loader/useable', 'css-loader', 'sass-loader']
-      // },
     ]
   },
   plugins: [
     // Extract CSS file to style.css
-    new ExtractTextPlugin({ 
-      filename: './css/style.min.css', 
-      allChunks: false,
-    })
+    new ExtractTextPlugin('./css/style.min.css')
   ]
 });

@@ -86,34 +86,11 @@
   margin: -$spacing-xs 0 $spacing-xs 0;
   padding: 0 $spacing-xs;
 
-  .star-rating__container {
-    unicode-bidi: bidi-override;
-    color: $textColorLight;
-    font-size: 1.6rem;
-    flex: 0 1 8rem;
-    position: relative;
-    text-shadow: 0px 1px 0 $textColorDark;
-  
-    .star-rating__top {
-      color: adjust-hue($secondaryLight, 30);
-      display: block;
-      left: 0;
-      overflow: hidden;
-      position: absolute;
-      top: 0;
-      width: 85%; // js will change this
-      z-index: 1;
-    }
-  
-    .star-rating__bottom {
-      display: block;
-      z-index: 0;
-    }
-  }
+}
 
-  .star-rating__link {
-    color: $secondaryLight;
-    margin: 0.3rem 0 0 $spacing-xs;
+.restaurant__star-rating {
+  .star-rating__container {
+    color: lighten($textColorDark, 20%);
   }
 }
 
@@ -127,8 +104,22 @@
   margin-bottom: $spacing-xs;
 }
 
-@media screen and (max-width: $breakpoint-md) {
-  .restaurant__hours {
+.restaurant__hours {
+  border: 0;
+  border-collapse: collapse;
+  min-width: 100%;
+
+  thead th {
+    background: $secondaryDark;
+    color: lighten($textColorLight, 10%);
+  }
+
+  td {
+    padding: $spacing-xs;
+    text-align: center;
+  }
+
+  @media screen and (max-width: $breakpoint-md) {
     display: block;
 
     thead, 
@@ -138,31 +129,31 @@
     tr {
       display: block;
     }
-
+  
     thead tr {
       position: absolute;
       top: -9999px;
       left: -9999px;
     }
-
+  
     tbody tr {
       border: 1px solid $textColorLight;
       border-radius: 0.3rem;
       margin: $spacing-sm 0 $spacing-lg 0;
-
+  
       &:last-child {
         margin-bottom: 0;
       }
-
+  
       td:nth-child(even) {
         background: rgba($textColorLight, 0.5);
       }
-
+  
       td:nth-child(4n) {
         border-bottom: 1px solid transparent;
       }
     }
-
+  
     td {
       border-bottom: 1px solid $textColorLight;
       position: relative;

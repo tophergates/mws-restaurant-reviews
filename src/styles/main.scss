@@ -1,3 +1,8 @@
-@import '_variables';
-@import '_normalize';
-@import '_structure';
+@import './variables';
+@import './normalize';
+@import './structure';
+@import './components/spinner';
+@import './components/star-rating';
+
+@import './home';
+@import './restaurant';

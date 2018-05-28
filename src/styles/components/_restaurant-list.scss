@@ -33,10 +33,10 @@
   min-height: 30rem;
   position: relative;
 
-  .restaurant-item__image {
-    border-radius: $spacing-lg 0 0 0;
+  .image__container {
+    min-height: 20rem;
   }
-  
+
   .restaurant-item__info {
     background: $textColorLight;
     border-top: 1px solid rgba($textColorDark, 0.75);
@@ -55,25 +55,23 @@
     text-align: center;
     text-transform: uppercase;
   }
+
+  .star-rating__container {
+    color: lighten($textColorDark, 20%);
+    flex: 0 1 $spacing-lg;
+    margin: 0 auto;
+  }
   
   .restaurant-item___address,
   .restaurant-item__neighborhood {
     color: darken($textColorLight, 65%);
-    font-size: 1.4rem;
+    font-size: 1.6rem;
   }
 
   .restaurant-item__review {
     display: block;
     font-size: 1.6rem;
     font-weight: normal;
-
-    &::before {
-      color: #ffa500;
-      content: '\2605';
-      padding-right: 0.5rem;
-      position: relative;
-      top: -0.1rem;
-    }
   }
   
   .restaurant-item__detail-link {
@@ -95,5 +93,21 @@
     background: $secondaryLight;
     box-shadow: 0 0 $spacing-sm rgba($textColorDark, 0.9);
     outline: none;
+  }
+}
+
+.image__container {
+  border-radius: $spacing-lg 0 0 0;
+  min-height: 10rem;
+  margin: 0;
+  padding: 0;
+  position: relative;
+  min-width: 100%;
+
+  .restaurant-item__image {
+    border-top-left-radius: $spacing-lg;
+    display: block;
+    max-width: 100%;
+    min-width: 100%;
   }
 }

@@ -9,10 +9,10 @@ class DBHelper {
     return `./data/restaurants.json`;
   }
 
-  static restaurantImgUrl({ photograph }, relative = true) {
+  static restaurantImgUrl({ id, size }, relative = true) {
     return (relative)
-     ? `./images/${photograph}`
-     : `${this.BASE_URL}/images/${photograph}`;
+     ? `./images/${id}-${size}.jpg`
+     : `${this.BASE_URL}/images/${id}-${size}.jpg`;
   }
 
   static restaurantUrl({ id }, relative = true) {
