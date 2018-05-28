@@ -1,11 +1,11 @@
 const VERSION = 'v2';
 const RRCACHE = {
-  name: `rr-${VERSION}`,
+  name: `rr-cache${VERSION}`,
 
   // Cached during the activate event
   prefetch: [
     '/', '/index.html', '/restaurant.html',
-    'favicon.ico', '/images/icons/favicon-32x32.png', '/images/icons/favicon-16x16.png',
+    '/favicon.ico', '/favicon-32x32.png', '/favicon-16x16.png',
     '/css/style.min.css',
     '/js/app.min.js', '/js/home.min.js', '/js/restaurant.min.js',
     '/data/restaurants.json',
@@ -23,22 +23,22 @@ const RRCACHE = {
   ],
 
   // Acceptable to be cached once they are fetched
-  whitelist: [
-    // Maps
-    'https://maps.googleapis.com/maps-api-v3/api/js/33/1/common.js',
-    'https://maps.googleapis.com/maps-api-v3/api/js/33/1/controls.js',
-    'https://maps.googleapis.com/maps-api-v3/api/js/33/1/infowindow.js',
-    'https://maps.googleapis.com/maps-api-v3/api/js/33/1/map.js',
-    'https://maps.googleapis.com/maps-api-v3/api/js/33/1/marker.js',
-    'https://maps.googleapis.com/maps-api-v3/api/js/33/1/stats.js',
-    'https://maps.googleapis.com/maps-api-v3/api/js/33/1/util.js',
-    'https://maps.googleapis.com/maps/api/js?key=AIzaSyCdhHwjurnlDda3XtpLrysWGsobzpRdpM8&callback=initMap',
-    'https://maps.googleapis.com/maps/vt',
-    'https://maps.gstatic.com/mapfiles/api-3/images/google4.png',
-    'https://maps.gstatic.com/mapfiles/openhand_8_8.cur',
-    'https://maps.gstatic.com/mapfiles/api-3/images/spotlight-poi2.png',
-    'https://maps.gstatic.com/mapfiles/transparent.png',
-  ]
+  // whitelist: [
+  //   // Maps
+  //   'https://maps.googleapis.com/maps-api-v3/api/js/33/1/common.js',
+  //   'https://maps.googleapis.com/maps-api-v3/api/js/33/1/controls.js',
+  //   'https://maps.googleapis.com/maps-api-v3/api/js/33/1/infowindow.js',
+  //   'https://maps.googleapis.com/maps-api-v3/api/js/33/1/map.js',
+  //   'https://maps.googleapis.com/maps-api-v3/api/js/33/1/marker.js',
+  //   'https://maps.googleapis.com/maps-api-v3/api/js/33/1/stats.js',
+  //   'https://maps.googleapis.com/maps-api-v3/api/js/33/1/util.js',
+  //   'https://maps.googleapis.com/maps/api/js?key=AIzaSyCdhHwjurnlDda3XtpLrysWGsobzpRdpM8&callback=initMap',
+  //   'https://maps.googleapis.com/maps/vt',
+  //   'https://maps.gstatic.com/mapfiles/api-3/images/google4.png',
+  //   'https://maps.gstatic.com/mapfiles/openhand_8_8.cur',
+  //   'https://maps.gstatic.com/mapfiles/api-3/images/spotlight-poi2.png',
+  //   'https://maps.gstatic.com/mapfiles/transparent.png',
+  // ]
 };
 
 /**
