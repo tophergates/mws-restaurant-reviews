@@ -1,14 +1,27 @@
-const VERSION = 'v2';
-const RRCACHE = {
-  name: `rr-cache${VERSION}`,
-
-  // Cached during the activate event
-  prefetch: [
-    '/', '/index.html', '/restaurant.html',
-    '/favicon.ico', '/favicon-32x32.png', '/favicon-16x16.png',
+const VERSION = 'v1';
+const RR_CACHE = {
+  name: `rr-static-${VERSION}`,
+ 
+  // IMPORTANT!!!
+  // Because we are using webpack dev server, in development a 
+  // style.min.css file is not generated. For this reason, it must
+  // be left out of the prefetched cache files or the Service Worker 
+  // will fail during the install step when in development.
+  //
+  // Before building for production, simply uncomment that line.
+  static: [
+    '/',
+    '/index.html',
+    '/restaurant.html',
+    '/favicon.ico',
+    '/favicon-32x32.png',
+    '/favicon-16x16.png',
     '/css/style.min.css',
-    '/js/app.min.js', '/js/home.min.js', '/js/restaurant.min.js',
+    '/js/app.min.js',
+    '/js/home.min.js',
+    '/js/restaurant.min.js',
     '/data/restaurants.json',
+    '/images/placeholder.png',
     '/images/1-small.jpg', '/images/1-medium.jpg', '/images/1-large.jpg',
     '/images/2-small.jpg', '/images/2-medium.jpg', '/images/2-large.jpg',
     '/images/3-small.jpg', '/images/3-medium.jpg', '/images/3-large.jpg',
@@ -20,86 +33,109 @@ const RRCACHE = {
     '/images/9-small.jpg', '/images/9-medium.jpg', '/images/9-large.jpg',
     '/images/10-small.jpg', '/images/10-medium.jpg', '/images/10-large.jpg',
     'https://fonts.googleapis.com/css?family=Montserrat|Noto+Sans|Roboto+Slab',
-  ],
-
-  // Acceptable to be cached once they are fetched
-  // whitelist: [
-  //   // Maps
-  //   'https://maps.googleapis.com/maps-api-v3/api/js/33/1/common.js',
-  //   'https://maps.googleapis.com/maps-api-v3/api/js/33/1/controls.js',
-  //   'https://maps.googleapis.com/maps-api-v3/api/js/33/1/infowindow.js',
-  //   'https://maps.googleapis.com/maps-api-v3/api/js/33/1/map.js',
-  //   'https://maps.googleapis.com/maps-api-v3/api/js/33/1/marker.js',
-  //   'https://maps.googleapis.com/maps-api-v3/api/js/33/1/stats.js',
-  //   'https://maps.googleapis.com/maps-api-v3/api/js/33/1/util.js',
-  //   'https://maps.googleapis.com/maps/api/js?key=AIzaSyCdhHwjurnlDda3XtpLrysWGsobzpRdpM8&callback=initMap',
-  //   'https://maps.googleapis.com/maps/vt',
-  //   'https://maps.gstatic.com/mapfiles/api-3/images/google4.png',
-  //   'https://maps.gstatic.com/mapfiles/openhand_8_8.cur',
-  //   'https://maps.gstatic.com/mapfiles/api-3/images/spotlight-poi2.png',
-  //   'https://maps.gstatic.com/mapfiles/transparent.png',
-  // ]
+  ]
+};
+const MAP_CACHE = {
+  name: `rr-maps-${VERSION}`,
+  whitelist: [
+    'https://maps.googleapis.com/maps-api-v3/api/js/33/1/common.js',
+    'https://maps.googleapis.com/maps-api-v3/api/js/33/1/util.js',
+    'https://maps.googleapis.com/maps-api-v3/api/js/33/1/map.js',
+    'https://maps.googleapis.com/maps-api-v3/api/js/33/1/marker.js',
+    'https://maps.googleapis.com/maps-api-v3/api/js/33/1/onion.js',
+    'https://maps.gstatic.com/mapfiles/transparent.png',
+    'https://maps.gstatic.com/mapfiles/',
+  ]
 };
 
-/**
- * ServiceWorker install event
- * Occurs once during the installation of the ServiceWorker
- */
+// Trims the given cache down to maxItems
+const trimCache = (cacheName, maxItems) => {
+  caches.open(cacheName)
+    .then(cache => {
+      return cache.keys()
+        .then(keys => {
+          if (keys.length > maxItems) {
+            console.log('Removing', keys[0].url, 'from', keys);
+            cache.delete(keys[0])
+              .then(trimCache(cacheName, maxItems));
+          }
+        });
+    })
+};
+
+// Checks the cache first or returns the network
+// response if not found
+const cacheThenNetwork = (cacheName, request, { ignoreSearch, trim }) => {
+  // Open the cache
+  return caches.open(cacheName)
+    .then(cache => {
+      // Look for the requested resource in the cache
+      return cache.match(request.url, { ignoreSearch })
+        .then(cachedResponse => {
+          // Return the cached response if found
+          // otherwise fetch from the network
+          return cachedResponse || fetch(request)
+            .then(networkResponse => {
+              // Check if we need to trim the cache
+              // and do so if necessary
+              if (trim && trim > 0) {
+                trimCache(cacheName, trim);
+                cache.put(request, networkResponse.clone());
+              }
+
+              // Add the network response to the cache and return it
+              return networkResponse;
+            })
+            .catch(err => {
+              // If the network request failed, we are probably
+              // offline. TODO: Add a fallback strategy
+              console.log('Unable to retrive from network', request.url);
+            })
+        })
+    })
+};
+
 self.addEventListener('install', event => {
   event.waitUntil(
-    caches.open(RRCACHE.name)
+    caches.open(RR_CACHE.name)
       .then(cache => {
-        return cache.addAll(RRCACHE.prefetch);
+        return cache.addAll(RR_CACHE.static);
       })
   );
 });
 
-/**
- * ServiceWorker install event
- * Occurs once after the install event
- */
 self.addEventListener('activate', event => {
-  event.waitUntil(() => {
+  event.waitUntil(
     caches.keys()
-    .then(keys => {
-      return Promise.all(
-        keys
-        .filter(k => k !== RRCACHE.name)
-        .map(k => caches.delete(k))
-      );
-    });
-    
-    self.clients.claim()
-  });
+      .then(keys => {
+        return Promise.all(
+          keys
+            .filter(k => {
+              return (
+                k !== RR_CACHE.name && 
+                k !== MAP_CACHE.name
+              );
+            })
+            .map(k => caches.delete(k))
+        );
+      })
+  );
+
+  return self.clients.claim();
 });
 
-/**
- * ServiceWorker fetch event
- * Occurs when a resource is being requested by the client
- */
 self.addEventListener('fetch', event => {
-  if (event.request.method === 'GET') {
-    event.respondWith(
-      caches.open(RRCACHE.name)
-        .then(cache => {
-          return cache.match(event.request, {ignoreSearch: true})
-            .then(response => {
-              return response || fetch(event.request)
-                .then(networkResponse => {
-                  // Dont cache some resources from Google Maps,
-                  // or the cache will quickly fill up!
-                  // if (RRCACHE.whitelist.includes(event.request.url)) {
-                    cache.put(event.request, networkResponse.clone());
-                  // }
+  let cacheName = RR_CACHE.name;
+  const options = { ignoreSearch: false, trim: 0 };
 
-                  return networkResponse;
-                })
-                .catch(err => {
-                  // Fallback
-                  // TODO: Send an offline message to the client
-                });
-            });
-        })
-    );
+  if (MAP_CACHE.whitelist.includes(event.request.url)) {
+    cacheName = MAP_CACHE.name;
+    options.trim = 5;
+  } else if (event.request.url.includes('/restaurant.html')) {
+    options.ignoreSearch = true;
   }
+
+  event.respondWith(
+    cacheThenNetwork(cacheName, event.request, options)
+  );
 });

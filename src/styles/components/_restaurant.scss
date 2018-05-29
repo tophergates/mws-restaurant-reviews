@@ -13,6 +13,11 @@
   .restaurant__image-container {
     grid-area: i;
     padding: 0;
+    min-width: 100%;
+
+    .restaurant__image {
+      width: 100%;
+    }
   }
 
   .restaurant__map-container {

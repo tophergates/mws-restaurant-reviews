@@ -1,6 +1,7 @@
 import DBHelper from '../utils/DBHelper';
 import Map from '../utils/Map';
 import {
+  lazyLoadImages,
   loadGoogleMaps, 
   makeImage, 
   makeStarRating
@@ -51,22 +52,19 @@ const createImage = ({ id, altText }, className) => {
   imageContainer.className = 'image__container';
   loadingIndicator.className = 'spinner';
   imageContainer.appendChild(loadingIndicator);
-
-  makeImage({
+  imageContainer.appendChild(makeImage({
     id,
     src: DBHelper.restaurantImgUrl({id, size: 'small' }),
     sizes: "100vw",
     alt: altText,
     className
   }, image => {
-    // remove the loading spinner
     loadingIndicator.parentNode && 
       loadingIndicator.parentNode.removeChild(loadingIndicator);
     
-    // add the image
     imageContainer.appendChild(image);
-  });
-
+  }));
+  
   return imageContainer;
 };
 
@@ -211,6 +209,7 @@ const IndexController = {
         restaurant${rCount === 1 ? '' : 's'}
       `;
 
+      lazyLoadImages();
       this.updateMap();
     }
   },
