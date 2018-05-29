@@ -98,7 +98,7 @@ TODO...
 
 |   | CRITERIA | SPECIFICATIONS |
 | - | -------- | -------------- |
-| ✖ | Application Data Source | The client application should pull restaurant data from the development server, parse the JSOn response, and use the information to render the appropriate sections of the application UI. |
+| ✖ | Application Data Source | The client application should pull restaurant data from the development server, parse the JSON response, and use the information to render the appropriate sections of the application UI. |
 | ✖ | Offline Use | The client application works offline. JSON responses are cached using the ```IndexedDB API```. Any data previously accesed while connected is reachable while offline. |
 
 #### Responsive Design and Accessibility

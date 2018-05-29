@@ -13,6 +13,7 @@ gulp.task('resize', function(done) {
   gulp.src('src/public/old_images/**/*.jpg')
     .pipe(resize({
       upscale: false,
+      quality: 0.77,
       width: 800,
     }))
     .pipe(rename(function(path) {
@@ -23,7 +24,8 @@ gulp.task('resize', function(done) {
   // Medium
   gulp.src('src/public/old_images/**/*.jpg')
     .pipe(resize({
-      percentage: 75
+      percentage: 75,
+      quality: 0.8
     }))
     .pipe(rename(function(path) {
       path.basename += "-medium";
@@ -33,7 +35,8 @@ gulp.task('resize', function(done) {
   // Small
   gulp.src('src/public/old_images/**/*.jpg')
     .pipe(resize({
-      percentage: 50
+      percentage: 50,
+      quality: 0.8
     }))
     .pipe(rename(function(path) {
       path.basename += "-small";

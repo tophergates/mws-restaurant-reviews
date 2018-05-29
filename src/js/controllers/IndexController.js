@@ -263,6 +263,11 @@ const IndexController = {
   },
 
   handleMapMarkerClick(infoWindow, marker) {
+    const image = infoWindow.content.querySelector('img.lazy');
+    image.src = image.dataset.src;
+    image.srcset = image.dataset.srcset;
+    image.classList.remove('lazy');
+
     infoWindow.open(marker.map, marker);
   },
 
