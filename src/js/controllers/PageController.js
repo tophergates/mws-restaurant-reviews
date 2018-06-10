@@ -1,5 +1,4 @@
 import { registerSW } from '../utils';
-import '../../styles/main.scss';
 
 const PageController = {
   render() {

@@ -5,13 +5,13 @@ const ExtractTextPlugin = require('extract-text-webpack-plugin');
 module.exports = merge(common, {
   mode: 'production',
   output: {
-    chunkFilename: './js/[name].min.js',
+    filename: './js/[name].min.js',
   },
   module: {
     rules: [
       // Extract SASS to CSS file
       {
-        test: /\.scss$/,
+        test: /\.css|scss$/,
         use: ExtractTextPlugin.extract({
           fallback: 'style-loader',
           use: [

@@ -7,17 +7,12 @@ module.exports = merge(common, {
   devServer: {
     clientLogLevel: 'warning',
     hot: true,
-    proxy: {
-      "/": {
-        target: 'http://localhost:1337'
-      }
-    }
   },
   module: {
     rules: [
       // Transform SASS into CSS
       {
-        test: /\.scss$/,
+        test: /\.css|scss$/,
         use: ['style-loader', 'css-loader', 'sass-loader']
       }
     ]

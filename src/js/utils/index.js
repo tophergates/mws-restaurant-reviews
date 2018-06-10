@@ -1,5 +1,6 @@
 import config from '../config';
 import DBHelper from './DBHelper';
+import Map from './Map';
 
 /**
  * Returns the value of the specified query string parameter 
@@ -19,20 +20,6 @@ const getUrlParameter = param => {
   const regex = new RegExp(`[\\?&]${param}=([^&#]*)`);
   const results = regex.exec(location.search);
   return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
-};
-
-/**
- * Appends the Google Maps API script at the end of the document.body 
- * or the specified node, if provided.
- * @param {HTMLElement} node 
- */
-const loadGoogleMaps = (node = document.body) => {
-  const script = document.createElement('script');
-
-  script.setAttribute('src', `https://maps.googleapis.com/maps/api/js?key=${config.MAPS_KEY}&callback=initMap`);
-  script.setAttribute('async', '');
-  script.setAttribute('defer', '');
-  node.appendChild(script);
 };
 
 /**
@@ -185,10 +172,11 @@ const registerSW = () => {
 };
 
 export {
+  DBHelper,
   getUrlParameter,
   lazyLoadImages,
-  loadGoogleMaps,
   makeImage,
   makeStarRating,
+  Map,
   registerSW,
 };

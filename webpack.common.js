@@ -41,7 +41,12 @@ module.exports ={
       // Enables loading image files
       {
         test: /\.(png|svg|jpg|gif)$/,
-        use:['file-loader']
+        use:[{
+          loader: 'file-loader',
+          options: {
+            name: 'images/[name].[ext]'
+          }
+        }],
       }
     ]
   },

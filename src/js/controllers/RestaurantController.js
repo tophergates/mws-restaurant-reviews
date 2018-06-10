@@ -1,20 +1,11 @@
-import DBHelper from '../utils/DBHelper';
-import Map from '../utils/Map';
 import {
+  DBHelper,
   lazyLoadImages,
-  loadGoogleMaps,
   getUrlParameter,
   makeImage,
-  makeStarRating
+  makeStarRating,
+  Map
 } from '../utils';
-
-/**
- * Called when Google Maps API is ready
- * @global
- */
-self.initMap = () => {
-  RestaurantController.loadMap();
-};
 
 /**
  * Generates the HTML output for the operating hours table
@@ -130,12 +121,12 @@ const RestaurantController = {
 
     DBHelper.fetchRestaurant(restaurantId)
       .then(restaurant => {
-        loadGoogleMaps();
         this.restaurant = restaurant;
         document.title += ` | ${this.restaurant.name}`;
 
         this.fillBreadcrumb();
         this.renderRestaurant();
+        this.loadMap();
       })
       .catch(console.error);
   },
@@ -278,35 +269,20 @@ const RestaurantController = {
     breadcrumbs.appendChild(li);
   },
 
-  /**
-   * Called by initMap once Google Maps API is ready.
-   * Create a new map and updates it
-   */
   loadMap() {
-    this.map = new Map(null, {
+    const { latlng } = this.restaurant;
+
+    // Create the map
+    this.map = new Map(document.querySelector('.restaurant__map'), {
       zoom: 16,
-      center: this.restaurant.latlng,
-      scrollwheel: false,
-    }, () => {
-      document.querySelector('#map iframe').title = 'Restaurant Location';
+      center: [latlng.lat, latlng.lng]
     });
 
-    this.restaurant && this.updateMap();
+    // Add a marker
+    this.map.addMarkers([{
+      position: [latlng.lat, latlng.lng],
+    }], event => event.target.closePopup());
   },
-
-  /**
-   * Updates the Google Map
-   */
-  updateMap() {
-    if (!this.map) {
-      return;
-    }
-
-    this.map.addMarker({
-      position: this.restaurant.latlng,
-      content: {}
-    });
-  }
 }
 
 export default RestaurantController;

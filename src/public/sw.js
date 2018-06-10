@@ -1,4 +1,4 @@
-const VERSION = 'v5';
+const VERSION = 'v6';
 const RR_CACHE = {
   name: `rr-static-${VERSION}`,
  
@@ -36,16 +36,7 @@ const RR_CACHE = {
   ]
 };
 const MAP_CACHE = {
-  name: `rr-maps-${VERSION}`,
-  whitelist: [
-    'https://maps.googleapis.com/maps-api-v3/api/js/33/1/common.js',
-    'https://maps.googleapis.com/maps-api-v3/api/js/33/1/util.js',
-    'https://maps.googleapis.com/maps-api-v3/api/js/33/1/map.js',
-    'https://maps.googleapis.com/maps-api-v3/api/js/33/1/marker.js',
-    'https://maps.googleapis.com/maps-api-v3/api/js/33/1/onion.js',
-    'https://maps.gstatic.com/mapfiles/transparent.png',
-    'https://maps.gstatic.com/mapfiles/',
-  ]
+  name: `rr-maps-${VERSION}`
 };
 
 // Trims the given cache down to maxItems
@@ -64,7 +55,7 @@ const trimCache = (cacheName, maxItems) => {
 
 // Checks the cache first or returns the network
 // response if not found
-const cacheThenNetwork = (cacheName, request, { ignoreSearch, trim }) => {
+const cacheThenNetwork = (cacheName, request, { ignoreSearch, trim,  }) => {
   // Open the cache
   return caches.open(cacheName)
     .then(cache => {
@@ -79,8 +70,9 @@ const cacheThenNetwork = (cacheName, request, { ignoreSearch, trim }) => {
               // and do so if necessary
               if (trim && trim > 0) {
                 trimCache(cacheName, trim);
-                cache.put(request, networkResponse.clone());
               }
+              
+              cache.put(request, networkResponse.clone());
 
               // Add the network response to the cache and return it
               return networkResponse;
@@ -94,14 +86,13 @@ const cacheThenNetwork = (cacheName, request, { ignoreSearch, trim }) => {
 };
 
 self.addEventListener('install', event => {
-  console.log('[SW]: Installing...');
   event.waitUntil(
     caches.open(RR_CACHE.name)
       .then(cache => {
         return cache.addAll(RR_CACHE.static);
       })
       .catch(error => {
-        console.error('Install failed', error);
+        console.error('ServiceWorker Install failed', error);
       })
   );
 });
@@ -121,20 +112,35 @@ self.addEventListener('activate', event => {
             .map(k => caches.delete(k))
         );
       })
+      .catch(error => {
+        console.error('ServiceWorker Activate failed', error);
+      })
   );
 
   return self.clients.claim();
 });
 
 self.addEventListener('fetch', event => {
+  const requestURL = new URL(event.request.url);
+
+  // Avoid caching responses from the API server
+  // so we do not cache JSON data
+  if (requestURL.origin === 'https://mws-restaurant-reviews.herokuapp.com') {
+    return;
+  }
+
   let cacheName = RR_CACHE.name;
   const options = { ignoreSearch: false, trim: 0 };
 
-  if (MAP_CACHE.whitelist.includes(event.request.url)) {
-    cacheName = MAP_CACHE.name;
-    options.trim = 5;
-  } else if (event.request.url.includes('/restaurant.html')) {
-    options.ignoreSearch = true;
+  if (requestURL.origin === location.origin) {
+    if (event.request.url.includes('/restaurant.html')) {
+      options.ignoreSearch = true;
+    }
+  } else {
+    if (event.request.url.includes('tile.openstreetmap.org')) {
+      cacheName = MAP_CACHE.name;
+      options.trim = 6;
+    }
   }
 
   event.respondWith(

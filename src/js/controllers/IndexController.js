@@ -1,19 +1,10 @@
-import DBHelper from '../utils/DBHelper';
-import Map from '../utils/Map';
 import {
+  DBHelper,
   lazyLoadImages,
-  loadGoogleMaps, 
   makeImage, 
-  makeStarRating
+  makeStarRating,
+  Map,
 } from '../utils';
-
-/**
- * Unfortunately we have to attach this function to the global scope.
- * This is a limitation of Google Maps.
- */
-self.initMap = () => {
-  IndexController.loadMap();
-};
 
 /**
  * Utility function to populate a select box with values.
@@ -135,8 +126,6 @@ const IndexController = {
   },
   
   render() {
-    loadGoogleMaps();
-
     DBHelper.fetchRestaurants()
       .then(restaurants => {
         const { mobileButtonBar, filterForm } = this.pageElements;
@@ -147,6 +136,7 @@ const IndexController = {
         // Populate filters and display the restaurants
         this.populateFilterForm();
         this.populateRestaurantsList();
+        this.loadMap();
 
         // Attach event listeners for the mobile view
         filterForm.addEventListener('change', this.handleFilterUpdates.bind(this));
@@ -222,59 +212,28 @@ const IndexController = {
       return;
     }
 
-    const markers = this.restaurants.map(r => {
-      const markerContent = document.createDocumentFragment();
-      const image = createImage(r, 'infoWindow__image');
-      const title = document.createElement('h2');
-      const address = document.createElement('address');
-      const link = document.createElement('a');
-
-      // Image
-      markerContent.appendChild(image);
-
-      // Title
-      title.className = 'infoWindow__title';
-      title.textContent = r.name;
-      markerContent.appendChild(title);
-
-      // Address
-      address.className = 'infoWindow__address';
-      address.textContent = r.address;
-      markerContent.appendChild(address);
-
-      // Link
-      link.className = 'infoWindow__link';
-      link.textContent = 'View Details';
-      link.setAttribute('href', DBHelper.restaurantUrl(r));
-      link.setAttribute('title', `View more information about ${r.name}`);
-      markerContent.appendChild(link);
-
-      return {
-        position: r.latlng,
-        content: markerContent
-      };
-    });
+    const markers = this.restaurants.map(r => ({
+      position: r.latlng,
+      content: `
+        <div class="infoWindow">
+          <h2 class="infoWindow__title">${r.name}</h2>
+          <address class="infoWindow__address">${r.address}</address>
+          <a href="${DBHelper.restaurantUrl(r)}" class="View more information about ${r.name}" title="">View Details</a>
+        </div>
+      `
+    }));
 
     this.resetMap();
-    this.map.addMarkers(markers, this.handleMapMarkerClick);
-  },
-
-  handleMapMarkerClick(infoWindow, marker) {
-    const image = infoWindow.content.querySelector('img.lazy');
-    image.src = image.dataset.src;
-    image.srcset = image.dataset.srcset;
-    image.classList.remove('lazy');
-
-    infoWindow.open(marker.map, marker);
+    this.map.addMarkers(markers);
   },
 
   loadMap() {
-    this.map = new Map();
+    this.map = new Map(document.querySelector('.map'));
     this.restaurants && this.updateMap();
   },
 
   resetMap() {
-    this.map && this.map.resetMarkers();
+    this.map && this.map.removeMarkers();
   }
 };
 
