@@ -5,8 +5,13 @@ const common = require('./webpack.common');
 module.exports = merge(common, {
   mode: 'development',
   devServer: {
+    clientLogLevel: 'warning',
     hot: true,
-    clientLogLevel: 'warning'
+    proxy: {
+      "/": {
+        target: 'http://localhost:1337'
+      }
+    }
   },
   module: {
     rules: [

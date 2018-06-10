@@ -101,8 +101,7 @@ const createRestaurant = restaurant => {
   address.textContent = restaurant.address;
 
   // Average Review
-  // avgReview.className = 'restaurant-item__review';
-  avgReview = makeStarRating(restaurant.reviews);
+  avgReview = makeStarRating(restaurant.averageReview);
   avgReview.setAttribute('aria-label', 'Average review');
 
   // View More button
@@ -137,11 +136,9 @@ const IndexController = {
   
   render() {
     loadGoogleMaps();
-    
+
     DBHelper.fetchRestaurants()
       .then(restaurants => {
-        if (!restaurants) throw Error('Restaurants could not be displayed');
-
         const { mobileButtonBar, filterForm } = this.pageElements;
 
         // Save restaurants for later

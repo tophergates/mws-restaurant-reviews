@@ -1,4 +1,4 @@
-const VERSION = 'v1';
+const VERSION = 'v5';
 const RR_CACHE = {
   name: `rr-static-${VERSION}`,
  
@@ -8,7 +8,8 @@ const RR_CACHE = {
   // be left out of the prefetched cache files or the Service Worker 
   // will fail during the install step when in development.
   //
-  // Before building for production, simply uncomment that line.
+  // During development, comment it out and 
+  // before building for production, simply uncomment that line.
   static: [
     '/',
     '/index.html',
@@ -17,10 +18,10 @@ const RR_CACHE = {
     '/favicon-32x32.png',
     '/favicon-16x16.png',
     '/css/style.min.css',
+    'https://fonts.googleapis.com/css?family=Montserrat|Noto+Sans|Roboto+Slab',
     '/js/app.min.js',
     '/js/home.min.js',
     '/js/restaurant.min.js',
-    '/data/restaurants.json',
     '/images/placeholder.png',
     '/images/1-small.jpg', '/images/1-medium.jpg', '/images/1-large.jpg',
     '/images/2-small.jpg', '/images/2-medium.jpg', '/images/2-large.jpg',
@@ -32,7 +33,6 @@ const RR_CACHE = {
     '/images/8-small.jpg', '/images/8-medium.jpg', '/images/8-large.jpg',
     '/images/9-small.jpg', '/images/9-medium.jpg', '/images/9-large.jpg',
     '/images/10-small.jpg', '/images/10-medium.jpg', '/images/10-large.jpg',
-    'https://fonts.googleapis.com/css?family=Montserrat|Noto+Sans|Roboto+Slab',
   ]
 };
 const MAP_CACHE = {
@@ -55,7 +55,6 @@ const trimCache = (cacheName, maxItems) => {
       return cache.keys()
         .then(keys => {
           if (keys.length > maxItems) {
-            console.log('Removing', keys[0].url, 'from', keys);
             cache.delete(keys[0])
               .then(trimCache(cacheName, maxItems));
           }
@@ -89,17 +88,20 @@ const cacheThenNetwork = (cacheName, request, { ignoreSearch, trim }) => {
             .catch(err => {
               // If the network request failed, we are probably
               // offline. TODO: Add a fallback strategy
-              console.log('Unable to retrive from network', request.url);
             })
         })
     })
 };
 
 self.addEventListener('install', event => {
+  console.log('[SW]: Installing...');
   event.waitUntil(
     caches.open(RR_CACHE.name)
       .then(cache => {
         return cache.addAll(RR_CACHE.static);
+      })
+      .catch(error => {
+        console.error('Install failed', error);
       })
   );
 });

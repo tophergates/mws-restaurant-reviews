@@ -1,4 +1,24 @@
-/node_modules/
-/src/js/config/config.*.js
+node_modules/
+bower_components/
+.vscode/
+
+/**/config.*.js
+config/local.js
 
 todo.md
+
+#.tmp
+dump.rdb
+lib-cov
+*.seed
+*.log
+*.out
+*.pid
+npm-debug.log
+*~
+*#
+.DS_STORE
+.netbeans
+nbproject
+.idea
+.node_history

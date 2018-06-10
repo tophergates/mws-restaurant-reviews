@@ -66,7 +66,6 @@ module.exports ={
 
     // Copy static files to dist
     new CopyWebpackPlugin([
-      { from: 'src/public/data', to: './data' },
       { from: 'src/public/images', to: './images' },
       { from: 'src/public/manifest.json' },
       { from: 'src/public/favicon-16x16.png'},

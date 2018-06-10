@@ -80,7 +80,7 @@ const generateReviewHtml = review => {
 
   starRating.className = 'star-rating';
   starRating.setAttribute('aria-label', `User rating: ${review.rating}`);
-  starRating.appendChild(makeStarRating([review]));
+  starRating.appendChild(makeStarRating(review.rating / 5 * 100));
   reviewTop.appendChild(starRating);
   
   // Review Body
@@ -130,11 +130,6 @@ const RestaurantController = {
 
     DBHelper.fetchRestaurant(restaurantId)
       .then(restaurant => {
-        if (!restaurant) {
-          console.error(`Unable to retrieve a restaurant with the ID ${restaurantId}`);
-          return;
-        }
-
         loadGoogleMaps();
         this.restaurant = restaurant;
         document.title += ` | ${this.restaurant.name}`;
@@ -204,11 +199,11 @@ const RestaurantController = {
    */
   generateAverageRating() {
     const { restaurantStarRating } = this.pageElements;
-    const { reviews } = this.restaurant;
+    const { averageReview, reviews } = this.restaurant;
     const link = document.createElement('a');
 
     // Add stars
-    restaurantStarRating.appendChild(makeStarRating(reviews));
+    restaurantStarRating.appendChild(makeStarRating(averageReview));
 
     // Add link
     link.setAttribute('href', '#reviews');

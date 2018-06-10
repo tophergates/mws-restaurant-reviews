@@ -62,28 +62,15 @@ const makeImage = ({id, src, srcset, sizes, alt, className}, onload) => {
 };
 
 /**
- * Calculates average rating percentage
- */
-const averageRating = reviews => {
-  const TOP_RATING = 5;
-  const total = reviews.reduce((acc, review) => {
-    return acc + review.rating;
-  }, 0);
-
-  return (total / (reviews.length * TOP_RATING) * 100);
-};
-
-/**
  * Generates the stars used for the ratings
  */
-const generateStarsHtml = () => {
-  const RATING_LIMIT = 5;
+const generateStarsHtml = (starCount = 5) => {
   const star = document.createElement('span');
   const docFrag = document.createDocumentFragment();
 
   star.textContent = '★';
   
-  for (let i=RATING_LIMIT; i>0; i--) {
+  for (let i=starCount; i>0; i--) {
     let tmp = star.cloneNode(true);
     docFrag.appendChild(tmp);
   }
@@ -118,9 +105,8 @@ const generateStarRatingHtml = rating => {
 /**
  * Returns star rating for given reviews
  */
-const makeStarRating = reviews => {
-  const average = averageRating(reviews);
-  return generateStarRatingHtml(average);
+const makeStarRating = rating => {
+  return generateStarRatingHtml(rating);
 };
 
 const elementInViewport = el => {
