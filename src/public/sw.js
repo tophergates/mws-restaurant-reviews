@@ -1,15 +1,6 @@
-const VERSION = 'v6';
+const VERSION = 'v7';
 const RR_CACHE = {
   name: `rr-static-${VERSION}`,
- 
-  // IMPORTANT!!!
-  // Because we are using webpack dev server, in development a 
-  // style.min.css file is not generated. For this reason, it must
-  // be left out of the prefetched cache files or the Service Worker 
-  // will fail during the install step when in development.
-  //
-  // During development, comment it out and 
-  // before building for production, simply uncomment that line.
   static: [
     '/',
     '/index.html',
@@ -17,7 +8,6 @@ const RR_CACHE = {
     '/favicon.ico',
     '/favicon-32x32.png',
     '/favicon-16x16.png',
-    // '/css/style.min.css',
     '/js/app.min.js',
     '/js/home.min.js',
     '/js/restaurant.min.js',
@@ -34,6 +24,7 @@ const RR_CACHE = {
     '/images/10-small.jpg', '/images/10-medium.jpg', '/images/10-large.jpg',
   ]
 };
+
 const MAP_CACHE = {
   name: `rr-maps-${VERSION}`
 };

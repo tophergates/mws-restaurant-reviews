@@ -6,6 +6,8 @@ import {
   Map,
 } from '../utils';
 
+import '../../styles/home.scss';
+
 /**
  * Utility function to populate a select box with values.
  */
@@ -218,7 +220,7 @@ const IndexController = {
         <div class="infoWindow">
           <h2 class="infoWindow__title">${r.name}</h2>
           <address class="infoWindow__address">${r.address}</address>
-          <a href="${DBHelper.restaurantUrl(r)}" class="View more information about ${r.name}" title="">View Details</a>
+          <a href="${DBHelper.restaurantUrl(r)}" class="infoWindow__link" title="View more information about ${r.name}">View Details</a>
         </div>
       `
     }));

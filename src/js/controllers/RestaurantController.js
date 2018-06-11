@@ -1,3 +1,4 @@
+import dateformat from 'dateformat';
 import {
   DBHelper,
   lazyLoadImages,
@@ -6,6 +7,8 @@ import {
   makeStarRating,
   Map
 } from '../utils';
+
+import '../../styles/restaurant.scss';
 
 /**
  * Generates the HTML output for the operating hours table
@@ -75,7 +78,7 @@ const generateReviewHtml = review => {
   reviewTop.appendChild(starRating);
   
   // Review Body
-  date.textContent = review.date;
+  date.textContent = dateformat(new Date(review.createdAt), 'mm/dd/yyyy h:MM TT');
   date.className = 'review__date';
   comment.innerHTML = review.comments;
   comment.className = 'review__comment';

@@ -1,6 +1,31 @@
 import idb from "idb";
 import config from '../config';
 
+// Used to return the first fulfilled promise
+// Adapted from jfriend00's response on StackOverflow.
+// Attribution: https://stackoverflow.com/questions/39940152/get-first-fulfilled-promise
+const firstPromise = promises => {
+  return new Promise((resolve, reject) => {
+    if (!promises || !promises.length) {
+      return reject(new Error('firstPromise() expects an array of promises'));
+    }
+
+    let errors = [];
+    let errorCount = 0;
+
+    promises.forEach((promise, idx) => {
+      Promise.resolve(promise).then(resolve, error => {
+        errors[idx] = error;
+        errorCount++;
+
+        if (errorCount === promises.length) {
+          reject(errors);
+        }
+      })
+    });
+  });
+};
+
 class Database {
   constructor(name, version) {
     this.name = name;
@@ -46,12 +71,27 @@ const DBInstance = new Database('rr-db', 1);
 class DBHelper {
   static _fetchData(url) {
     if (!url) {
-      return new Error('Unable to fetch. Enpoint was not specified.');
+      return Promise.reject(new Error('Unable to fetch. Enpoint was not specified.'));
     }
 
-    return fetch(url).then(res => {
-      return res.ok ? res.json() : new Error('Unable to fetch the requested data');
+    return new Promise((resolve, reject) => {
+      fetch(url).then(res => {
+        if (res.ok) {
+          resolve(res.json());
+        }
+        
+        reject(new Error('Unable to fetch the requested data'));
+      }).catch(reject);
     });
+  }
+
+  static _appendAverageScore(restaurants) {
+    return restaurants.length ? Promise.all(restaurants.map(r => {
+      return this.averageReview(r.id).then(score => {
+        r.averageReview = score;
+        return r;
+      });
+    })) : Promise.resolve(restaurants);
   }
 
   static get BASE_URL() {
@@ -74,150 +114,214 @@ class DBHelper {
      : `${this.BASE_URL}/restaurant.html?id=${id}`;
   }
 
-  static _appendAverageScore(restaurants) {
-    // Add an average review score for each restaurant. 
-    // We'll need this for the star ratings
-    return restaurants.length ? Promise.all(restaurants.map(r => {
-      return this.averageReview(r.id).then(score => {
-        r.averageReview = score;
-        return r;
-      });
-    })) : restaurants;
-  }
-
   static fetchRestaurants(favorites = false) {
-    // Attempt to fetch from network
-    return this._fetchData(`${this.DB_URL}/restaurants`)
+    let network = false;
+    
+    // Fetch from network
+    const fetchPromise = this._fetchData(`${this.DB_URL}/restaurants`)
       .then(restaurants => {
-        // Calculate and append the average review score
+        // Append the average scores for later
         if (restaurants) {
           return this._appendAverageScore(restaurants);
         }
-      })
-      .then(restaurants => {
-        // Update the database
-        restaurants.forEach(restaurant => {
-          DBInstance.writeData('restaurants', restaurant);
-        });
-
-        return restaurants;
-      })
-      .then(restaurants => {
-        // Return the restaurants or favorites if asked for
-        return (
-          favorites ?
-            restaurants.filter(r => r.is_favorite) :
-            restaurants
-        );        
-      })
-
-      // Fallback to IndexedDB if the network fetch fails
-      .catch(error => {
-        return DBInstance.readData('restaurants')
-          .then(restaurants => {
-            return (
-              favorites ? 
-                restaurants.filter(r => r.is_favorite) :
-                restaurants
-            );
-          });
+      }).then(restaurants => {
+        // Update the cached data
+        return Promise.all(restaurants.map(restaurant => {
+          return DBInstance.writeData('restaurants', restaurant);
+        })).then(restaurants => {
+          // Set network flag to true
+          network = true;
+          return restaurants;
+        })
       });
+
+    // Fetch data from the cache at the same time
+    const cachePromise = DBInstance.readData('restaurants')
+      .then(restaurants => {
+        // If the network fetch hasnt returned yet, 
+        // return data from the cache.
+        if (!network) {
+          return restaurants;
+        }
+      });
+
+    // Return the data that returns first
+    return firstPromise([fetchPromise, cachePromise])
+      .then(res => favorites ? res.filter(r => r.is_favorite) : res);
   }
 
   static fetchRestaurant(restaurantId) {
     if (!restaurantId) {
-      return Promise.resolve();
+      return Promise.reject(new Error('Unable to fetch a restaurant without an ID'));
     };
 
-    // Attempt to fetch from network
-    return this._fetchData(`${this.DB_URL}/restaurants/${restaurantId}`)
+    let network = false;
+    
+    // Fetch from network
+    const fetchPromise = this._fetchData(`${this.DB_URL}/restaurants/${restaurantId}`)
       .then(restaurant => {
         if (restaurant) {
-          return this.fetchReviews(restaurant.id)
-            .then(reviews => {
-              restaurant.reviews = reviews;
-              return restaurant;
-            })
+          return this._appendAverageScore([restaurant]);
         }
       })
       .then(restaurant => {
-        return this._appendAverageScore([restaurant]);
-      })
-      .then(restaurant => {
-        // Update the database
-        DBInstance.writeData('restaurants', restaurant[0]);
-        return restaurant[0];
-      })
-
-      // Fallback to IndexedDB if the network fetch fails
-      .catch(error => {
-        return DBInstance.readData('restaurants', restaurantId)
-          .then(restaurant => {
-            return DBInstance.readData('reviews')
+        return DBInstance.writeData('restaurants', restaurant[0])
+          .then(_ => {
+            return this.fetchRestaurantReviews(restaurant[0].id)
               .then(reviews => {
-                restaurant.reviews = reviews.filter(r => r.restaurant_id === restaurant.id);
-                return restaurant;
+                restaurant[0].reviews = reviews;
+                return restaurant[0];
               });
           });
+      })
+      .then(restaurant => {
+        return Promise.all(restaurant.reviews.map(review => {
+          return DBInstance.writeData('reviews', review);
+        })).then(_ => {
+          // Set network flag to true
+          network = true;
+          return restaurant;
+        });
       });
-  }
 
-  static async fetchReviews(restaurantId, reviewId) {
-    const BASE_URL = this.DB_URL;
-    let reviews;
-    let networkFetch = false;
-
-    if (reviewId) {
-      // Get a specific review
-      reviews = await DBInstance.readData('reviews', reviewId);
-
-      if (!reviews || !reviews.length) {
-        networkFetch = true;
-        reviews = await this._fetchData(`${BASE_URL}/reviews/${reviewId}`);
-      }
-    } else if (restaurantId) {
-      // Get reviews for one restaurant
-      reviews = await DBInstance.readData('reviews');
-      reviews = reviews.length ? reviews.filter(r => r.restaurant_id === restaurantId) : [];
-      
-      if (!reviews || !reviews.length) {
-        networkFetch = true;
-        reviews = await this._fetchData(`${BASE_URL}/reviews/?restaurant_id=${restaurantId}`);
-      }
-    } else {
-      // Get all reviews
-      reviews = await DBInstance.readData('reviews');
-
-      if (!reviews || !reviews.length) {
-        networkFetch = true;
-        reviews = await this._fetchData(`${BASE_URL}/reviews/`);
-      }
-    }
-
-    if (networkFetch && reviews.length > 0) {
-      // Store the fetched data in the db for later
-      reviews.forEach(review => {
-        DBInstance.writeData('reviews', review);
+    // Fetch data from the cache at the same time
+    const cachePromise = DBInstance.readData('restaurants', restaurantId)
+      .then(restaurant => {
+        // If the network fetch hasnt returned yet, 
+        // return data from the cache.
+        if (!network) {
+          return restaurant;
+        }
+      })
+      .then(restaurant => {
+        return DBInstance.readData('reviews')
+          .then(reviews => {
+            restaurant.reviews = reviews.filter(r => r.restaurant_id === restaurant.id);
+            return restaurant;
+          });
       });
-    }
 
-    return reviews;
+    // Return the data that returns first
+    return firstPromise([fetchPromise, cachePromise]);
   }
 
-  static async fetchReviewScores(restaurantId) {
-    const reviews = await this.fetchReviews(restaurantId);
-    return reviews.map(review => review.rating);
+  static fetchReviews() {
+    let network = false;
+    
+    // Fetch from network
+    const fetchPromise = this._fetchData(`${this.DB_URL}/reviews`)
+      .then(reviews => {
+        // Update the cached data
+        return Promise.all(reviews.map(review => {
+          return DBInstance.writeData('reviews', review);
+        })).then(reviews => {
+          // Set network flag to true
+          network = true;
+
+          return reviews;
+        });
+      });
+
+    // Fetch data from the cache at the same time
+    const cachePromise = DBInstance.readData('reviews')
+      .then(reviews => {
+        // If the network fetch hasnt returned yet, 
+        // return data from the cache.
+        if (!network) {
+          return reviews;
+        }
+      });
+
+    // Return the data that returns first
+    return firstPromise([fetchPromise, cachePromise]);
   }
 
-  static async averageReview(restaurantId, maxReview = 5) {
-    // Get the ratings and then total up all the review scores
-    const ratings = await this.fetchReviewScores(restaurantId);
-    const total = ratings.reduce((a, b) => a + +b, 0);
+  static fetchRestaurantReviews(restaurantId) {
+    let network = false;
+    
+    // Fetch from network
+    const fetchPromise = this._fetchData(`${this.DB_URL}/reviews/?restaurant_id=${restaurantId}`)
+      .then(reviews => {
+        if (reviews) {
+          // Update the cached data
+          return Promise.all(reviews.map(review => {
+            return DBInstance.writeData('reviews', review);
+          }));
+        }
 
-    // Multiply number of ratings by the maximum review, then divide by the total
-    // Finally, multiply by 100 to find the percentage. This percentage is used 
-    // to determine the width of the star ratings
-    return (total / (ratings.length * maxReview) * 100);
+        return [];
+      })
+      .then(reviews => {
+        network = true;
+        return reviews;
+      });
+
+    // Fetch data from the cache at the same time
+    const cachePromise = DBInstance.readData('reviews')
+      .then(reviews => {
+        // If the network fetch hasnt returned yet, 
+        // return data from the cache.
+        if (!network) {
+          return reviews;
+        }
+      })
+      .then(reviews => {
+        if (reviews) {
+          return reviews.filter(r => r.restaurant_id === restaurantId);
+        }
+
+        return [];
+      });
+
+    // Return the data that returns first
+    return firstPromise([fetchPromise, cachePromise]);
+  }
+
+  static fetchReview(reviewId) {
+    let network = false;
+    
+    // Fetch from network
+    const fetchPromise = this._fetchData(`${this.DB_URL}/reviews/${reviewId}`)
+      .then(review => {
+        // Update the cached data
+        return DBInstance.writeData('reviews', review)
+          .then(_ => {
+            network = true;
+            return review;
+          });
+      });
+
+    // Fetch data from the cache at the same time
+    const cachePromise = DBInstance.readData('reviews', reviewId)
+      .then(review => {
+        // If the network fetch hasnt returned yet, 
+        // return data from the cache.
+        if (!network) {
+          return review;
+        }
+      });
+
+    // Return the data that returns first
+    return firstPromise([fetchPromise, cachePromise]);
+  }
+
+  static fetchReviewScores(restaurantId) {
+    if (!restaurantId) Promise.resolve(0);
+
+    return this.fetchRestaurantReviews(restaurantId)
+      .then(reviews => {
+        if (reviews) {
+          return reviews.map(review => review.rating);
+        }
+      })
+  }
+
+  static averageReview(restaurantId, maxReview = 5) {
+    return this.fetchReviewScores(restaurantId)
+      .then(ratings => {
+        const total = ratings.reduce((a, b) => a + +b, 0);
+        return (total / (ratings.length * maxReview) * 100);
+      });
   }
 }
 

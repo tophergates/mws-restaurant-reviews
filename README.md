@@ -4,11 +4,9 @@
 
 The restaurant reviews application is the project required to complete the Mobile Web Specialist Nanodegree offered through Udacity as part of the Grow with Google scholarship program.
 
-## Running the Application Locally
+## Running the Application
 
-To run the application on your localhost, clone this repository and then:
-
-- Go get a [Google Maps API key](https://developers.google.com/maps/documentation/javascript/get-api-key).
+To run the application in development, clone this repository and then:
 
 - Create a ```config.dev.js``` file inside the ```/src/config``` directory with the following structure:
 
@@ -16,15 +14,25 @@ To run the application on your localhost, clone this repository and then:
   export default {
     HOST: 'http://localhost',
     PORT: '8080',
-    MAPS_KEY: 'ENTER YOUR MAP KEY HERE',
+    SERVER: 'https://mws-restaurant-reviews.herokuapp.com'
   };
   ```
-
-  > For production builds, you will also need a ```config.prod.js``` file. I recommend you create a separate Google Maps API key for production.
 
 - From the terminal, run the command ```npm install``` to install project dependencies.
 
 - Finally, run the command ```npm start``` to spin up the development server with hot module replacement and live reloading enabled.
+
+- Point your browser at <http://localhost:8080>.
+
+**To test the production build of the application locally**:
+
+- First, if you are running the development server make sure you kill the server.
+
+- Next, create a ```config.prod.js``` file inside the ```/src/config``` directory with the same structure as your ```config.dev.js``` but with details regarding the production server.
+
+- Run the command ```npm run build``` to build the production ready `dist` file.
+
+- Run the command ```cd dist && npx http-server``` to change into the `dist` folder and run a local http server.
 
 - Point your browser at <http://localhost:8080>.
 
@@ -90,16 +98,52 @@ Code should adhere to the Udacity HTML, CSS, JavaScript, and Git [style guidelin
 
 ### Stage Two Requirements
 
-TODO...
+**Make the provided site fully responsive.** Convert the [provided website](https://github.com/udacity/mws-restaurant-stage-1) to a fully responsive application:
+
+- [X] All of the page elements should be usable and visible in any viewport, including desktop, table, and mobile diplays.
+
+- [X] Images shouldn't overlap.
+
+- [X] Page elements should wrap when the viewport is too small to display them side-by-side.
+
+**Make the site accessible.** The application should be accessible.
+
+- [X] Ensure that ```alt``` attributes are present and descriptive for images.
+
+- [X] Add screen-reader-only attributes when appropriate to add useful supplementary text.
+
+- [X] Use semantic markup where possible and ```aria``` attributes when semantic markup is not feasible.
+
+**Cache the static site for offline use.** The application should be available offline or during intermittent connectivity.
+
+- [X] Using the ```Cache API``` and a ```ServiceWorker``` cache the data for the website so that any resource (including images) that has been visited is accessible offline.
 
 ### Grading Rubric, Stage Two
+
+Continue building on the design you put together in Stage One and connect it to an [external server](https://github.com/udacity/mws-restaurant-stage-2):
+
+**Use server data instead of local memory.**
+
+- [X] Use the ```fetch()``` API to make requests to the server to populate the content of your Restaurant Reviews app.
+
+**Use IndexedDB to cache JSON responses.**
+
+- [X] Update the application to store the JSON data returned from the server for offline use using the IndexedDB API.
+
+**Meet the minimum performance requirements.**
+
+- [X] Progressive Web App score should be at 90 or better
+
+- [X] Performance should be at 70 or better
+
+- [X] Accessibility should be at 90 or better
 
 #### Application Data and Offline Use
 
 |   | CRITERIA | SPECIFICATIONS |
 | - | -------- | -------------- |
-| ✖ | Application Data Source | The client application should pull restaurant data from the development server, parse the JSON response, and use the information to render the appropriate sections of the application UI. |
-| ✖ | Offline Use | The client application works offline. JSON responses are cached using the ```IndexedDB API```. Any data previously accesed while connected is reachable while offline. |
+| ✓ | Application Data Source | The client application should pull restaurant data from the development server, parse the JSON response, and use the information to render the appropriate sections of the application UI. |
+| ✓ | Offline Use | The client application works offline. JSON responses are cached using the ```IndexedDB API```. Any data previously accesed while connected is reachable while offline. |
 
 #### Responsive Design and Accessibility
 
@@ -112,11 +156,29 @@ TODO...
 
 |   | CRITERIA | SPECIFICATIONS |
 | - | -------- | -------------- |
-| ✖ | Site Performance | Lighthouse targets for each category exceed:<br><br>Progressive Web App: >90<br>Performance: >70<br>Accessibility: >90 |
+| ✓ | Site Performance | Lighthouse targets for each category exceed:<br><br>Progressive Web App: >90<br>Performance: >70<br>Accessibility: >90 |
 
 ### Stage Three Requirements
 
-TODO...
+Continue building on the application you put together in Stages One and Two to add additional functionality. You will add a form to allow users to create their own reviews using the new endpoints provided by the [updated API server](https://github.com/udacity/mws-restaurant-stage-3):
+
+**Add a form to allow users to create their own reviews.**
+
+- [ ] The form should include the user's name, restaurant ID, the user's rating, and whatever comments they have. Submitting the form should update the server when the user is online.
+
+**Add functionality to defer updates until the user is connected.**
+
+- [ ] If the user is not online, the app should notify the user that they are not connected and save the users' data to submit automatically when reconnected.
+
+- [ ] The review should be deferred and sent to the server when a connection is reestablished, but the review should still be visible locally even before it gets to the server.
+
+**Meet the minimum performance requirements.**
+
+- [ ] Progressive Web App score should be at 90 or better
+
+- [ ] Performance should be at 90 or better
+
+- [ ] Accessibility should be at 90 or better
 
 ### Grading Rubric, Stage Three
 
