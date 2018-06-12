@@ -122,16 +122,15 @@ const RestaurantController = {
       return;
     }
 
-    DBHelper.fetchRestaurant(restaurantId)
-      .then(restaurant => {
-        this.restaurant = restaurant;
-        document.title += ` | ${this.restaurant.name}`;
+    DBHelper.fetchRestaurant(restaurantId).then(restaurant => {
+      this.restaurant = restaurant;
+      document.title += ` | ${this.restaurant.name}`;
 
-        this.fillBreadcrumb();
-        this.renderRestaurant();
-        this.loadMap();
-      })
-      .catch(console.error);
+      this.fillBreadcrumb();
+      this.renderRestaurant();
+      this.loadMap();
+    })
+    .catch(console.error);
   },
 
   /**
@@ -278,7 +277,8 @@ const RestaurantController = {
     // Create the map
     this.map = new Map(document.querySelector('.restaurant__map'), {
       zoom: 16,
-      center: [latlng.lat, latlng.lng]
+      center: [latlng.lat, latlng.lng],
+      dragging: false,
     });
 
     // Add a marker
