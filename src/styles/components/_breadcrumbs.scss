@@ -1,6 +1,7 @@
 .breadcrumbs {
   background: rgba($textColorLight, 0.25);
   border-bottom: 1px inset rgba($textColorDark, 0.25);
+  min-height: 4.6666rem;
   padding: $spacing-sm;
 }
 
@@ -22,11 +23,11 @@
     content: '';
   }
 
-  &[aria-current="page"] {
+  &[aria-current='page'] {
     color: $textColorDark;
     font-weight: bold;
     text-decoration: none;
-  
+
     &::after {
       content: '';
     }

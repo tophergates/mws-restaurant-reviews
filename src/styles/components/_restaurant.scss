@@ -1,6 +1,6 @@
 .restaurant {
   display: grid;
-  grid-template-areas: "h" "s" "i" "m" "d" "r";
+  grid-template-areas: 'h' 's' 'i' 'm' 'd' 'r';
 
   .restaurant__header {
     grid-area: h;
@@ -34,15 +34,13 @@
 
   @media screen and (min-width: $breakpoint-lg) {
     grid:
-      "i i h h h h h"
-      "i i s s s s s"
-      "i i m m m m m"
-      "d d d d d d d"
-      "r r r r r r r";
+      'i i h h h h h'
+      'i i s s s s s'
+      'i i d d d d d';
     grid-template-columns: 250px 1fr repeat(4, 1fr);
     grid-template-rows: auto auto 1fr;
     column-gap: 1rem;
-    margin: 0 auto;
+    margin: 0 2rem;
     padding: $spacing-md;
 
     .restaurant__image-container {
@@ -50,7 +48,7 @@
       max-height: 600px;
       max-width: 800px;
       margin: auto;
-  
+
       .restaurant__image {
         border-radius: $spacing-lg;
       }
@@ -63,11 +61,28 @@
   padding: $spacing-xs;
 
   .restaurant__name {
-    color: $secondaryDark;
-    font-size: $spacing-xl;
-    letter-spacing: 0.025ch;
-    line-height: 1;
-    padding-bottom: $spacing-xs;
+    display: flex;
+    justify-content: space-between;
+
+    .restaurant__name--text {
+      color: $secondaryDark;
+      font-size: $spacing-xl;
+      letter-spacing: 0.025ch;
+      line-height: 1;
+      padding-bottom: $spacing-xs;
+    }
+
+    .restaurant__favorite {
+      background: transparent;
+      border: none;
+
+      &.true {
+        color: $secondaryDark;
+      }
+      &.false {
+        color: $textColorDark;
+      }
+    }
   }
 
   .restaurant__cuisine,
@@ -90,7 +105,6 @@
   flex-wrap: nowrap;
   margin: -$spacing-xs 0 $spacing-xs 0;
   padding: 0 $spacing-xs;
-
 }
 
 .restaurant__star-rating {
@@ -127,43 +141,43 @@
   @media screen and (max-width: $breakpoint-md) {
     display: block;
 
-    thead, 
-    tbody, 
-    th, 
-    td, 
+    thead,
+    tbody,
+    th,
+    td,
     tr {
       display: block;
     }
-  
+
     thead tr {
       position: absolute;
       top: -9999px;
       left: -9999px;
     }
-  
+
     tbody tr {
       border: 1px solid $textColorLight;
       border-radius: 0.3rem;
       margin: $spacing-sm 0 $spacing-lg 0;
-  
+
       &:last-child {
         margin-bottom: 0;
       }
-  
+
       td:nth-child(even) {
         background: rgba($textColorLight, 0.5);
       }
-  
+
       td:nth-child(4n) {
         border-bottom: 1px solid transparent;
       }
     }
-  
+
     td {
       border-bottom: 1px solid $textColorLight;
       position: relative;
       padding: $spacing-sm 0 $spacing-sm 50%;
-    
+
       &:before {
         font-style: normal;
         position: absolute;

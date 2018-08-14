@@ -1,291 +1,408 @@
 import dateformat from 'dateformat';
+
 import {
   DBHelper,
-  lazyLoadImages,
   getUrlParameter,
+  lazyLoadImages,
   makeImage,
   makeStarRating,
   Map
 } from '../utils';
-
 import '../../styles/restaurant.scss';
 
-/**
- * Generates the HTML output for the operating hours table
- */
-const generateHoursHtml = operatingHours => {
-  const docFrag = document.createDocumentFragment();
-  const table = document.createElement('table');
-  const tr = document.createElement('tr');
-  const thead = document.createElement('thead');
-  const thead_tr = tr.cloneNode();
-  const tbody = document.createElement('tbody');
-  const tbody_tr = tr.cloneNode();
-  const th = document.createElement('th');
-  const td = document.createElement('td');
+const restaurantImageHTML = ({ id, altText }, className) => {
+  const image = makeImage({
+    id,
+    src: DBHelper.restaurantImgUrl({ id, size: 'small' }),
+    sizes: '100vw',
+    alt: altText,
+    className
+  });
 
-  table.className = 'restaurant__hours';
+  return `<div class="restaurant__image-container">${image}</div>`;
+};
 
-  thead.appendChild(thead_tr);
-  tbody.appendChild(tbody_tr);
+const restaurantHeaderHTML = ({
+  address,
+  name,
+  cuisine_type: cuisine,
+  operating_hours: hours,
+  is_favorite
+}) => {
+  const daysOfTheWeek = Object.keys(hours);
+  const todayNum = new Date().getDay();
+  const currentDay = daysOfTheWeek[todayNum > 0 ? todayNum - 1 : todayNum];
+  const favoriteClass = `restaurant__favorite ${is_favorite}` || `restaurant__favorite false`;
+  const favoriteText = is_favorite === 'true' ? 'Favorite' : 'Make a Favorite';
+  const favoriteAria = is_favorite === 'true' ? 'Remove as a favorite' : 'Mark as a favorite';
+
+  return `
+    <div class="restaurant__header">
+      <div class="restaurant__name">
+        <h2 class="restaurant__name--text">${name}</h2>
+        <button aria-label="${favoriteAria}" class="${favoriteClass}">♥ ${favoriteText}</button> 
+      </div>
+      <address class="restaurant__address">${address}</address>
+      <span class="restaurant__cuisine">${cuisine}</span>
+      <p class="restaurant__hours-today">Hours today:
+        <span class="hours-today__text">${hours[currentDay]}</span>
+      </p>
+    </div>
+  `;
+};
+
+const restaurantAverageRatingHTML = (reviews, averageReview) => {
+  const starRating = makeStarRating(averageReview);
+  const link = `<a href="#reviews" title="Skip to customer reviews" class="star-rating__link">${
+    reviews.length
+  } reviews</a>`;
+
+  return `
+    <div class="restaurant__star-rating">
+      ${starRating}
+      ${link}
+    </div>
+  `;
+};
+
+const restaurantOperatingHoursHTML = operatingHours => {
+  const tableHeaders = [];
+  const tableBody = [];
 
   for (let day in operatingHours) {
-    let day_th = th.cloneNode();
-    let day_td = td.cloneNode();
+    const html = operatingHours[day].includes(',')
+      ? operatingHours[day].replace(', ', '<br>')
+      : operatingHours[day];
 
-    day_th.textContent = day;
-    day_td.innerHTML = (operatingHours[day].includes(',') ? operatingHours[day].replace(', ', '<br>') : operatingHours[day]);
-    day_td.setAttribute('data-th', day);
-
-    thead_tr.appendChild(day_th);
-    tbody_tr.appendChild(day_td);
+    tableHeaders.push(`<th>${day}</th>`);
+    tableBody.push(`<td data-th="${day}">${html}</td>`);
   }
 
-  table.appendChild(thead);
-  table.appendChild(tbody);
-
-  docFrag.appendChild(table);
-  
-  return docFrag;
+  return `
+    <table class="restaurant__hours">
+      <thead>${tableHeaders.join('')}</thead>
+      <tbody>${tableBody.join('')}</tbody>
+    </table>
+  `;
 };
 
-/**
- * Generates the HTML output for a review
- */
-const generateReviewHtml = review => {
-  const li = document.createElement('li');
-  const div = document.createElement('div');
-  const p = document.createElement('p');
-  const reviewTop = div.cloneNode();
-  const reviewBody = div.cloneNode();
-  const username = p.cloneNode();
-  const starRating = div.cloneNode();
-  const date = p.cloneNode();
-  const comment = p.cloneNode();
+const restaurantDetailsHTML = ({ operating_hours }) => {
+  const operatingHours = restaurantOperatingHoursHTML(operating_hours);
 
-  li.className = 'restaurant__review';
-  reviewTop.className = 'review__top';
-  reviewBody.className = 'review__body';
-
-  // Review Top
-  username.textContent = review.name;
-  username.className = 'review__username';
-  reviewTop.appendChild(username);
-
-  starRating.className = 'star-rating';
-  starRating.setAttribute('aria-label', `User rating: ${review.rating}`);
-  starRating.appendChild(makeStarRating(review.rating / 5 * 100));
-  reviewTop.appendChild(starRating);
-  
-  // Review Body
-  date.textContent = dateformat(new Date(review.createdAt), 'mm/dd/yyyy h:MM TT');
-  date.className = 'review__date';
-  comment.innerHTML = review.comments;
-  comment.className = 'review__comment';
-  reviewBody.appendChild(date);
-  reviewBody.appendChild(comment);
-
-  li.appendChild(reviewTop);
-  li.appendChild(reviewBody);
-
-  return li;
+  return `
+    <div class="restaurant__details">
+      <div class="restaurant__hours-container">
+        <h3 class="subheading">Operating Hours</h3>
+        ${operatingHours}
+      </div>
+    </div>
+  `;
 };
 
-/**
- * The restaurant page controller
- */
+const restaurantSectionHTML = restaurant => {
+  const html = [];
+
+  html.push(restaurantHeaderHTML(restaurant));
+  html.push(restaurantImageHTML(restaurant, 'restaurant__image'));
+  html.push(restaurantAverageRatingHTML(restaurant.reviews, restaurant.averageReview));
+  html.push(restaurantDetailsHTML(restaurant));
+
+  return html.join('');
+};
+
+const reviewFormHTML = () => {
+  const options = [];
+
+  for (let i = 1; i <= DBHelper.MAX_REVIEW_SCORE; i++) {
+    options.push(
+      `<option value=${i}>${Array(i)
+        .fill('★')
+        .join('')}</option>`
+    );
+  }
+
+  return `
+    <div class="review-form__container">
+      <h4 class="review-form__title">Add Review</h4>
+      <form class="review-form">
+        <div class="review-form__row">
+          <label for="author">Author:</label>
+          <input type="text" name="name" id="author" required>
+        </div>
+        <div class="review-form__row">
+          <label for="rating">Rating:</label>
+          <select aria-label="Select rating" id="rating" name="rating" required>
+            ${options.join('')}
+          </select>
+        </div>
+        <div class="review-form__row">
+          <label for="comments">Comments:</label>
+          <textarea id="comments" name="comments" required></textarea>
+        </div>
+        <div class="review-form__row">
+          <button class="submit-button">Submit</button>
+        </div>
+      </form>
+    </div>
+  `;
+};
+
+const reviewItemHTML = ({ comments, createdAt, name, rating, pending }) => {
+  return `
+    <li class="restaurant__review${pending === true ? ' offline' : ''}">
+      <div class="review__top">
+        <p class="review__username">${name}</p>
+        <div class="star-rating" aria-label="User rating: ${rating}">
+          ${makeStarRating((rating / DBHelper.MAX_REVIEW_SCORE) * 100)}
+        </div>
+      </div>
+      <div class="review__body">
+        <p class="review__date">${dateformat(new Date(createdAt), 'mm/dd/yyyy h:MM TT')}</p>
+        <p class="review__comment">${comments}</p>
+      </div>
+    </li>
+  `;
+};
+
+const reviewsHTML = reviews => {
+  const html = [];
+
+  if (!reviews || (reviews && reviews.length === 0)) {
+    html.push(
+      `<p class="restaurant-reviews__empty">There are currently no reviews for this restaurant. Yours could be first!</p>`
+    );
+    return html.join('');
+  }
+
+  html.push(`<ul class="restaurant__reviews">`);
+  html.push(reviews.map(reviewItemHTML).join(''));
+  html.push(`</ul>`);
+
+  return html.join('');
+};
+
+const reviewsSectionHTML = reviews => {
+  const html = [];
+
+  html.push(`<h3 class="subheading">User Reviews</h3>`);
+  html.push(reviewFormHTML());
+  html.push(reviewsHTML(reviews));
+
+  return html.join('');
+};
+
 const RestaurantController = {
+  state: {
+    restaurant: null,
+    errors: [],
+    isLoading: true,
+    online: navigator.onLine
+  },
+
   map: null,
-  restaurant: null,
-  pageElements: {
-    breadcrumbs: document.querySelector('.breadcrumbs__nav-list'),
+
+  elements: {
+    breadcrumbs: document.querySelector('.breadcrumbs'),
     restaurantContainer: document.querySelector('.restaurant'),
-    restaurantName: document.querySelector('.restaurant__name'),
-    restaurantCuisine: document.querySelector('.restaurant__cuisine'),
-    restaurantHoursToday: document.querySelector('.hours-today__text'),
-    restaurantAddress: document.querySelector('.restaurant__address'),
-    restaurantNeighborhood: document.querySelector('.restaurant__neighborhood'),
-    restaurantStarRating: document.querySelector('.restaurant__star-rating'),
-    restaurantHoursContainer: document.querySelector('.restaurant__hours-container'),
-    restaurantImageContainer: document.querySelector('.restaurant__image-container'),
-    reviewsContainer: document.querySelector('.restaurant__reviews-container'),
+    reviewsContainer: document.querySelector('.restaurant__reviews-container')
   },
 
   /**
-   * Page controller entry point to begin rendering page elements
+   * Sets the state and rerenders.
+   * @param {function} fn
    */
-  render() {
+  setState(fn) {
+    const prevState = this.state;
+    this.state = Object.assign(prevState, fn(prevState));
+    this.render();
+  },
+
+  /**
+   * Initiates the first render, then attempts to fetch restaurants update the state.
+   */
+  init() {
+    this.render();
     const restaurantId = +getUrlParameter('id');
 
     if (!restaurantId) {
-      console.error('The restaurant ID could not be located');
+      this.setState(({ errors, isLoading }) => ({
+        errors: [...errors, `A restaurant ID was not specified.`],
+        isLoading: !isLoading
+      }));
+
       return;
     }
 
-    DBHelper.fetchRestaurant(restaurantId).then(restaurant => {
-      this.restaurant = restaurant;
-      document.title += ` | ${this.restaurant.name}`;
+    DBHelper.fetchRestaurantWithReviews(restaurantId)
+      .then(restaurant => {
+        this.setState(({ isLoading }) => ({
+          restaurant,
+          errors: [],
+          isLoading: !isLoading
+        }));
 
-      this.fillBreadcrumb();
-      this.renderRestaurant();
-      this.loadMap();
-    })
-    .catch(console.error);
+        this.loadMap();
+      })
+      .catch(() => {
+        this.setState(({ errors, isLoading }) => ({
+          errors: [...errors, `Oh no! We were unable to locate the restaurant you requested.`],
+          isLoading: !isLoading
+        }));
+      });
+
+    window.addEventListener('online', this.addPendingReviews.bind(this));
   },
 
   /**
-   * Renders restaurant information
+   * Checks if the the loading state is true or if there are errors.
+   * If loading or there are errors, it returns false. Otherwise, true.
+   * This also populates the restaurant result element depending on the state.
    */
-  renderRestaurant() {
-    // Populate restaurant content
-    this.generateImage();
-    this.populateHeader();
-    this.generateAverageRating();
-    this.populateAddress();
-    this.populateDetails();
-    this.renderReviews();
+  notLoadingNoErrors() {
+    const { isLoading, errors } = this.state;
+    const { restaurantContainer } = this.elements;
+
+    if (isLoading) {
+      restaurantContainer.innerHTML = `<p class="restaurant-result info">Loading restaurant...</p>`;
+      return false;
+    } else if (errors && errors.length > 0) {
+      const html = errors.map(error => `<p>${error}</p>`).join('');
+      restaurantContainer.innerHTML = `<div class="restaurant-result error">${html}</div>`;
+      return false;
+    }
+
+    return true;
+  },
+
+  updatePage() {
+    const { name } = this.state.restaurant;
+    const { breadcrumbs } = this.elements;
+
+    document.title += ` | ${name}`;
+
+    breadcrumbs.innerHTML = `
+      <ol class="breadcrumbs__nav-list">
+        <li class="breadcrumbs__nav-item">
+          <a href="./" class="breadcrumbs__link" title="Return to the Restaurant Reviews home page">Home</a>
+        </li>
+        <li class="breadcrumbs__nav-item" aria-current="page">${name}</li>
+      </ol>
+    `;
+  },
+
+  populateRestaurant() {
+    const { restaurant } = this.state;
+    const { restaurantContainer } = this.elements;
+
+    restaurantContainer.innerHTML = restaurantSectionHTML(restaurant);
     lazyLoadImages();
   },
 
-  /**
-   * Populates the restaurant header with content
-   */
-  populateHeader() {
-    const { restaurantName, restaurantCuisine, restaurantHoursToday } = this.pageElements;
-    const { name, cuisine_type: cuisine, operating_hours: operatingHours } = this.restaurant;
-    const daysOfTheWeek = Object.keys(operatingHours);
-    const todayNum = new Date().getDay();
-    const currentDay = daysOfTheWeek[todayNum > 0 ? todayNum - 1 : todayNum];
-    
-    restaurantName.textContent = name;
-    restaurantCuisine.textContent = cuisine;
-    restaurantHoursToday.textContent = operatingHours[currentDay];
-  },
-
-  /**
-   * Generates an IMG element for the current restaurant
-   */
-  generateImage() {
-    const { restaurantImageContainer } = this.pageElements;
-    const { id, altText } = this.restaurant;
-    const loadingIndicator = document.createElement('span');
-    
-    loadingIndicator.className = 'spinner';
-    restaurantImageContainer.appendChild(loadingIndicator);
-
-    restaurantImageContainer.appendChild(makeImage({
-      id,
-      src: DBHelper.restaurantImgUrl({id, size: 'small' }),
-      sizes: "100vw",
-      alt: altText,
-      className: 'restaurant__image',
-    }, image => {
-      loadingIndicator.parentNode && 
-        loadingIndicator.parentNode.removeChild(loadingIndicator);
-      
-      restaurantImageContainer.appendChild(image);
-    }));
-  },
-
-  /**
-   * Generates the average star rating
-   */
-  generateAverageRating() {
-    const { restaurantStarRating } = this.pageElements;
-    const { averageReview, reviews } = this.restaurant;
-    const link = document.createElement('a');
-
-    // Add stars
-    restaurantStarRating.appendChild(makeStarRating(averageReview));
-
-    // Add link
-    link.setAttribute('href', '#reviews');
-    link.setAttribute('title', 'Skip to customer reviews');
-    link.className = 'star-rating__link';
-    link.textContent = `${reviews.length} reviews`;
-
-    restaurantStarRating.appendChild(link);
-  },
-
-  /**
-   * Populates the restaurant address and neighborhood
-   */
-  populateAddress() {
-    const { restaurantAddress, restaurantNeighborhood } = this.pageElements;
-    const { address, neighborhood } = this.restaurant;
-
-    restaurantAddress.textContent = address;
-    restaurantNeighborhood.textContent = neighborhood;
-  },
-
-  /**
-   * Populates restaurant details section
-   */
-  populateDetails() {
-    const { restaurantHoursContainer } = this.pageElements;
-    const { operating_hours: operatingHours } = this.restaurant;
-
-    restaurantHoursContainer.appendChild(generateHoursHtml(operatingHours));
-  },
-  
-  /**
-   * Renders reviews if there are any
-   */
-  renderReviews() {
-    const { reviews } = this.restaurant;
-    const { reviewsContainer } = this.pageElements;
-    const docFrag = document.createDocumentFragment();
-
-    if (!reviews) {
-      const paragraph = document.createElement('p');
-
-      paragraph.textContent = `${this.restaurant.name} does not have any reviews`;
-      paragraph.className = 'restaurant-reviews__empty';
-      reviewsContainer.appendChild(paragraph);
-
-      return;
-    }
-
-    const reviewsList = document.createElement('ul');
-    reviewsList.className = 'restaurant__reviews';
-
-    reviews.forEach(review => {
-      docFrag.appendChild(generateReviewHtml(review));
-    });
-
-    reviewsList.appendChild(docFrag);
-    reviewsContainer.appendChild(reviewsList);
-  },
-
-  /**
-   * Populates the page breadcrumbs
-   */
-  fillBreadcrumb() {
-    const { breadcrumbs } = this.pageElements;
-    const li = document.createElement('li');
-    
-    li.textContent = this.restaurant.name;
-    li.classList.add('breadcrumbs__nav-item');
-    li.setAttribute('aria-current', 'page');
-
-    breadcrumbs.appendChild(li);
-  },
-
   loadMap() {
-    const { latlng } = this.restaurant;
+    const { latlng } = this.state.restaurant;
 
     // Create the map
     this.map = new Map(document.querySelector('.restaurant__map'), {
       zoom: 16,
       center: [latlng.lat, latlng.lng],
-      dragging: false,
+      dragging: false
     });
 
     // Add a marker
-    this.map.addMarkers([{
-      position: [latlng.lat, latlng.lng],
-    }], event => event.target.closePopup());
+    this.map.addMarkers(
+      [
+        {
+          position: [latlng.lat, latlng.lng]
+        }
+      ],
+      event => event.target.closePopup()
+    );
   },
-}
+
+  populateReviews() {
+    const { reviews } = this.state.restaurant;
+    const { reviewsContainer } = this.elements;
+
+    reviewsContainer.innerHTML = reviewsSectionHTML(reviews);
+  },
+
+  addNewReview(event) {
+    event.preventDefault();
+
+    const { name, rating, comments } = event.target.elements;
+    const review = {
+      restaurant_id: this.state.restaurant.id,
+      rating: +rating.value,
+      name: name.value,
+      comments: comments.value.substring(0, 300),
+      createdAt: new Date()
+    };
+
+    DBHelper.addRestaurantReview(review).then(updatedReviews => {
+      const { restaurant } = this.state;
+
+      if (updatedReviews && Array.isArray(updatedReviews)) {
+        restaurant.reviews = updatedReviews;
+      } else {
+        restaurant.reviews.push(Object.assign(review, { pending: true }));
+      }
+
+      restaurant.averageReview = DBHelper.calculateAverageReview(restaurant.reviews);
+      this.setState(() => ({ restaurant }));
+    });
+  },
+
+  addPendingReviews() {
+    if (navigator.onLine) {
+      const { restaurant } = this.state;
+
+      DBHelper.addPendingReviews(restaurant.id).then(updatedReviews => {
+        if (Array.isArray(updatedReviews) && updatedReviews.length > 0) {
+          this.setState(({ restaurant }) => {
+            restaurant.reviews = updatedReviews;
+            restaurant.averageReview = DBHelper.calculateAverageReview(restaurant.reviews);
+
+            return { restaurant };
+          });
+        }
+      });
+    }
+  },
+
+  handleFavoriteChange() {
+    const { id, is_favorite } = this.state.restaurant;
+    const favorite = is_favorite === 'true' ? true : false;
+
+    DBHelper.setFavoriteRestaurant(id, !favorite).then(newRestaurant => {
+      console.log(newRestaurant.is_favorite);
+
+      this.setState(({ restaurant }) => ({
+        restaurant: Object.assign({}, restaurant, { is_favorite: newRestaurant.is_favorite })
+      }));
+    });
+  },
+
+  /**
+   * Kicks of rendering the page. It is called whenever the state is updated.
+   */
+  render() {
+    if (this.notLoadingNoErrors()) {
+      // Update breadcrumbs and page title
+      this.updatePage();
+
+      // Populate the restaurants list and lazy load the images
+      this.populateRestaurant();
+      this.populateReviews();
+
+      document
+        .querySelector('.review-form')
+        .addEventListener('submit', this.addNewReview.bind(this));
+
+      document
+        .querySelector('.restaurant__favorite')
+        .addEventListener('click', this.handleFavoriteChange.bind(this));
+    }
+  }
+};
 
 export default RestaurantController;

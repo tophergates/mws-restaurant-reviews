@@ -1,18 +1,18 @@
-import L from 'leaflet';
+import { Map as LeafletMap, TileLayer, LatLngBounds, Icon, Marker } from 'leaflet';
 
-// Workaround to get markers working with leaflet when 
+// Workaround to get markers working with leaflet when
 // bundling javascript with Webpack. Attribution:
 // https://github.com/PaulLeCam/react-leaflet/issues/255
 import marker from 'leaflet/dist/images/marker-icon.png';
 import marker2x from 'leaflet/dist/images/marker-icon-2x.png';
 import markerShadow from 'leaflet/dist/images/marker-shadow.png';
 
-delete L.Icon.Default.prototype._getIconUrl;
+delete Icon.Default.prototype._getIconUrl;
 
-L.Icon.Default.mergeOptions({
-    iconRetinaUrl: marker2x,
-    iconUrl: marker,
-    shadowUrl: markerShadow
+Icon.Default.mergeOptions({
+  iconRetinaUrl: marker2x,
+  iconUrl: marker,
+  shadowUrl: markerShadow
 });
 
 class Map {
@@ -20,26 +20,26 @@ class Map {
     const defaultOptions = {
       center: [40.722216, -73.987501],
       zoom: 12,
-      scrollWheelZoom: false,
+      scrollWheelZoom: false
     };
 
     options = Object.assign({}, defaultOptions, options);
 
     // Create the map
-    this._map = L.map(mount, options);
+    this._map = new LeafletMap(mount, options);
     this._markers = [];
 
     // Add map tiles
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-      foo: 'bar'
+    new TileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution:
+        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
     }).addTo(this.Map);
   }
 
   addMarkers(markers, callback) {
-    const bounds = new L.LatLngBounds();
+    const bounds = new LatLngBounds();
 
-    this._markers = markers.map(({position, content }) => {
+    this._markers = markers.map(({ position, content }) => {
       bounds.extend(position);
       return this.addMarker(position, content, callback);
     });
@@ -51,7 +51,7 @@ class Map {
   }
 
   addMarker(position, content = null, callback) {
-    return L.marker(position)
+    return new Marker(position)
       .addTo(this.Map)
       .bindPopup(content)
       .on('click', event => {

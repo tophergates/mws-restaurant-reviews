@@ -20,7 +20,7 @@ const minifyHtmlOptions = {
   useShortDoctype: true
 };
 
-module.exports ={
+module.exports = {
   entry: {
     app: './src/index.js'
   },
@@ -41,12 +41,14 @@ module.exports ={
       // Enables loading image files
       {
         test: /\.(png|svg|jpg|gif)$/,
-        use:[{
-          loader: 'file-loader',
-          options: {
-            name: 'images/[name].[ext]'
+        use: [
+          {
+            loader: 'file-loader',
+            options: {
+              name: 'images/[name].[ext]'
+            }
           }
-        }],
+        ]
       }
     ]
   },
@@ -73,14 +75,14 @@ module.exports ={
     new CopyWebpackPlugin([
       { from: 'src/public/images', to: './images' },
       { from: 'src/public/manifest.json' },
-      { from: 'src/public/favicon-16x16.png'},
-      { from: 'src/public/favicon-32x32.png'},
-      { 
+      { from: 'src/public/favicon-16x16.png' },
+      { from: 'src/public/favicon-32x32.png' },
+      {
         from: 'src/public/sw.js',
         transform: function(fileContent, filePath) {
           return uglifyJS.minify(fileContent.toString()).code.toString();
         }
-      },
+      }
     ])
   ]
-}
+};

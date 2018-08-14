@@ -6,7 +6,7 @@
   max-width: 100%;
 
   .restaurant__map {
-    background-color: darken($textColorLight, 5%);
+    background-color: transparent;
     border: 1px inset rgba($textColorDark, 0.25);
     border-bottom: 0;
     flex: 1 0 auto;
@@ -16,7 +16,7 @@
     position: relative;
     transition: opacity 1s ease;
     width: 100%;
-  
+
     .restaurant__map-loading {
       color: rgba($textColorDark, 0.85);
       display: block;
@@ -25,32 +25,6 @@
       position: absolute;
       top: 50%;
       transform: translate(-50%, -50%);
-    }
-  }
-
-  .restaurant__map-footer {
-    align-items: center;
-    background: rgba($primaryLight, 0.15);
-    border: 1px solid rgba($textColorDark, 0.25);
-    display: flex;
-    justify-content: space-between;
-
-    .restaurant__address-container {
-      flex: 1;
-      padding: $spacing-xs;
-    }
-
-    // Unused, maybe explore this option later
-    .restaurant__enlarge-map-button {
-      align-self: stretch;
-      background: $textColorLight;
-      border: 0;
-      border-left: 1px solid rgba($textColorLight, 0.25);;
-      color: $textColorDark;
-      cursor: pointer;
-      font-size: 160%;
-      font-weight: 700;
-      padding: 0 $spacing-md;
     }
   }
 }

@@ -1,4 +1,4 @@
-import { registerSW } from '../utils';
+import registerSW from '../utils/registerSW';
 
 const PageController = {
   render() {
@@ -17,34 +17,22 @@ const PageController = {
   },
 
   /**
-   * Prompts the user to install on home screen
-   */
-  displayInstallPrompt() {
-    window.addEventListener('beforeinstallprompt', event => {
-      event.prompt();
-    });
-  },
-
-  /**
    * Lazy loads page controller depending on current route
    */
   loadCurrentRoute() {
-    switch(this.currentRoute()) {
+    switch (this.currentRoute()) {
       case '/':
-        import(/*webpackChunkName: "home" */ './IndexController')
-          .then(IndexController => {
-            IndexController.default.render();
-          });
+        import(/*webpackChunkName: "home" */ './IndexController').then(IndexController => {
+          IndexController.default.init();
+        });
 
         break;
       case '/restaurant':
-        import(/*webpackChunkName: "restaurant" */ './RestaurantController')
-          .then(RestaurantController => {
-            // Show the deferred prompt
-            this.displayInstallPrompt();
-
-            RestaurantController.default.render();
-          });
+        import(/*webpackChunkName: "restaurant" */ './RestaurantController').then(
+          RestaurantController => {
+            RestaurantController.default.init();
+          }
+        );
 
         break;
     }

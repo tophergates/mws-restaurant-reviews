@@ -2,14 +2,17 @@
   border: 1px inset rgba($textColorDark, 0.35);
   display: flex;
   flex: 1 0 auto;
+  max-height: 40rem;
+  min-height: 40rem;
+  overflow: hidden;
 }
 
 .map {
   background-color: darken($textColorLight, 5%);
   flex: 1 0 auto;
   height: auto;
-  min-height: 40rem;
   opacity: 1;
+  position: relative;
   transition: opacity 1s ease;
 
   .map__loading {
@@ -30,16 +33,16 @@
   .infoWindow__title {
     width: 100%;
   }
-  
+
   .infoWindow__image {
     max-width: 100%;
   }
-  
+
   .infoWindow__address {
     font-size: 1.4rem;
     margin-bottom: $spacing-sm;
   }
-  
+
   .infoWindow__link {
     color: $secondaryDark;
     font-weight: bold;

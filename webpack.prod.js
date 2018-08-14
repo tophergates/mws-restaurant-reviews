@@ -1,11 +1,11 @@
 const merge = require('webpack-merge');
 const common = require('./webpack.common');
-const ExtractTextPlugin = require('extract-text-webpack-plugin');
+// const ExtractTextPlugin = require('extract-text-webpack-plugin');
 
 module.exports = merge(common, {
   mode: 'production',
   output: {
-    filename: './js/[name].min.js',
+    filename: './js/[name].min.js'
   },
   module: {
     rules: [
@@ -31,8 +31,12 @@ module.exports = merge(common, {
       }
     ]
   },
+  optimization: {
+    nodeEnv: 'production',
+    minimize: true
+  },
   plugins: [
     // Extract CSS file to style.css
-    // new ExtractTextPlugin('./css/style.min.css')
+    // new ExtractTextPlugin('./css/style.min.css'),
   ]
 });

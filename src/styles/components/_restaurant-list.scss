@@ -3,14 +3,14 @@
   margin-bottom: $spacing-md;
   padding: $spacing-sm;
 
-  .restaurant-count {
+  .restaurant-result {
     background: rgba($textColorLight, 0.5);
     border: 1px solid rgba(darken($textColorLight, 25%), 0.25);
-    border-radius: 0.3rem;  
+    border-radius: 0.3rem;
     padding: $spacing-xs;
     margin-bottom: $spacing-md;
-  
-    .restaurant-count__text {
+
+    .restaurant-count {
       font-weight: bold;
     }
   }
@@ -48,7 +48,7 @@
     justify-content: space-evenly;
     padding: $spacing-xs $spacing-sm;
   }
-  
+
   .restaurant-item__title {
     color: $textColorDark;
     font-size: 2rem;
@@ -61,7 +61,7 @@
     flex: 0 1 $spacing-lg;
     margin: 0 auto;
   }
-  
+
   .restaurant-item___address,
   .restaurant-item__neighborhood {
     color: darken($textColorLight, 65%);
@@ -73,7 +73,7 @@
     font-size: 1.6rem;
     font-weight: normal;
   }
-  
+
   .restaurant-item__detail-link {
     background: $secondaryDark;
     border: 1px solid rgba(darken($secondaryDark, 50%), 0.25);
@@ -86,7 +86,7 @@
     transition: all 0.3s ease;
     width: 50%;
   }
-  
+
   .restaurant-item__detail-link:focus,
   .restaurant-item__detail-link:active,
   .restaurant-item__detail-link:hover {

@@ -1,241 +1,215 @@
-import {
-  DBHelper,
-  lazyLoadImages,
-  makeImage, 
-  makeStarRating,
-  Map,
-} from '../utils';
-
+import { DBHelper, makeImage, lazyLoadImages, populateSelectBox, Map } from '../utils';
 import '../../styles/home.scss';
 
-/**
- * Utility function to populate a select box with values.
- */
-const populateSelectBox = (selectEl, values) => {
-  // Create a document fragment and option element
-  const docFrag = document.createDocumentFragment();
-  const optionEl = document.createElement('option');
-
-  // Add an option for each value
-  values.forEach(value => {
-    // Clone the option element
-    let option = optionEl.cloneNode();
-
-    // Set the textContent and value
-    option.textContent = value;
-    option.value = value;
-
-    // Append the option to the document fragment
-    docFrag.appendChild(option);
-  });
-
-  // Append the document fragment to the select box
-  selectEl.appendChild(docFrag);
-};
-
-/**
- * Creates an image inside of a container
- * Displays a loading spinner before the image 
- * has finished loading.
- */
-const createImage = ({ id, altText }, className) => {
-  const imageContainer = document.createElement('div');
-  const loadingIndicator = document.createElement('span');
-
-  imageContainer.className = 'image__container';
-  loadingIndicator.className = 'spinner';
-  imageContainer.appendChild(loadingIndicator);
-  imageContainer.appendChild(makeImage({
+const restaurantImageHTML = ({ id, altText }, className) => {
+  const image = makeImage({
     id,
-    src: DBHelper.restaurantImgUrl({id, size: 'small' }),
-    sizes: "100vw",
+    src: DBHelper.restaurantImgUrl({ id, size: 'small' }),
+    sizes: '100vw',
     alt: altText,
     className
-  }, image => {
-    loadingIndicator.parentNode && 
-      loadingIndicator.parentNode.removeChild(loadingIndicator);
-    
-    imageContainer.appendChild(image);
-  }));
-  
-  return imageContainer;
+  });
+
+  return `
+    <div class="image__container">
+      ${image}
+    </div>
+  `;
 };
 
-/**
- * Generates the html for one restaurant list item.
- */
-const createRestaurant = restaurant => {
-  // Create the necessary elements for later
-  const span = document.createElement('span');
-  const li = document.createElement('li');
-  const body = document.createElement('div');
-  const name = document.createElement('h2');
-  const neighborhood = span.cloneNode();
-  const address = document.createElement('address');
-  const more = document.createElement('a');
-  let avgReview;
+const restaurantItemHTML = restaurant => {
+  const { id, address, name, neighborhood } = restaurant;
+  const url = DBHelper.restaurantUrl(id);
 
-  // Give the list item a class
-  li.classList.add('restaurants-list__item');
+  // TODO: Figure out how to include star ratings
+  return `
+    <li class="restaurants-list__item">
+      ${restaurantImageHTML(restaurant, 'restaurant-item__image')}
+      <div class="restaurant-item__info">
+        <h2 class="restaurant-item__title">${name}</h2>
+        <span class="restaurant-item__neighborhood">${neighborhood}</span>
+        <address class="restaurant-item___address">${address}</address>
+        <a class="restaurant-item__detail-link" href="${url}" title="View additional details about ${name}">Details</a>
+      </div>
+    </li>
+  `;
+};
 
-  // Content body
-  body.className = 'restaurant-item__info';
-
-  // Restaurant title
-  name.textContent = restaurant.name;
-  name.className = 'restaurant-item__title';
-
-  // Restaurant neighborhood
-  neighborhood.textContent = restaurant.neighborhood;
-  neighborhood.className = 'restaurant-item__neighborhood';
-
-  // Restaurant address
-  address.className = 'restaurant-item___address';
-  address.textContent = restaurant.address;
-
-  // Average Review
-  avgReview = makeStarRating(restaurant.averageReview);
-  avgReview.setAttribute('aria-label', 'Average review');
-
-  // View More button
-  more.textContent = 'Details';
-  more.href = DBHelper.restaurantUrl(restaurant);
-  more.title = `View additional details about ${restaurant.name}`;
-  more.className = 'restaurant-item__detail-link';
-
-  // Append content to the body
-  body.append(name);
-  body.append(avgReview);
-  body.append(neighborhood);
-  body.append(address);
-  body.append(more);
-
-  li.append(createImage(restaurant, 'restaurant-item__image'));
-  li.append(body);
-
-  return li;
+const restaurantListHTML = restaurants => {
+  return restaurants.map(restaurantItemHTML).join('');
 };
 
 const IndexController = {
+  state: {
+    restaurants: null,
+    errors: [],
+    neighborhoodFilter: '',
+    cuisineFilter: '',
+    isLoading: true
+  },
+
   map: null,
-  restaurants: null,
-  pageElements: {
+
+  elements: {
     cuisineSelect: document.getElementById('cuisine'),
     filterForm: document.querySelector('.filters'),
     neighborhoodSelect: document.getElementById('neighborhood'),
     restaurantsList: document.querySelector('.restaurants-list'),
-    restaurantResultCount: document.querySelector('.restaurant-count'),
+    restaurantResult: document.querySelector('.restaurant-result')
   },
-  
-  render() {
+
+  /**
+   * Sets the state and rerenders.
+   * @param {function} fn
+   */
+  setState(fn) {
+    const prevState = this.state;
+    this.state = Object.assign(prevState, fn(prevState));
+    this.render();
+  },
+
+  /**
+   * Initiates the first render, then attempts to fetch restaurants update the state.
+   */
+  init() {
+    const { filterForm } = this.elements;
+
+    this.map = new Map(document.querySelector('.map'));
+    this.render();
+
     DBHelper.fetchRestaurants()
       .then(restaurants => {
-        const { mobileButtonBar, filterForm } = this.pageElements;
-
-        // Save restaurants for later
-        this.restaurants = restaurants;
-
-        // Populate filters and display the restaurants
-        this.populateFilterForm();
-        this.populateRestaurantsList();
-        this.loadMap();
-
-        // Attach event listeners for the mobile view
-        filterForm.addEventListener('change', this.handleFilterUpdates.bind(this));
+        this.setState(({ isLoading }) => ({
+          restaurants,
+          errors: [],
+          isLoading: !isLoading
+        }));
       })
-      .catch(console.error);
+      .catch(error => {
+        this.setState(({ errors, isLoading }) => ({
+          errors: [...errors, error],
+          isLoading: !isLoading
+        }));
+      });
+
+    filterForm.addEventListener('change', this.handleFilterUpdates.bind(this));
+  },
+
+  /**
+   * Checks if the the loading state is true or if there are errors.
+   * If loading or there are errors, it returns false. Otherwise, true.
+   * This also populates the restaurant result element depending on the state.
+   */
+  notLoadingNoErrors() {
+    const { isLoading, errors } = this.state;
+    const { restaurantResult } = this.elements;
+
+    restaurantResult.className = 'restaurant-result';
+
+    if (isLoading) {
+      restaurantResult.classList.add('info');
+      restaurantResult.textContent = 'Please wait while we whip up something delicious...';
+      return false;
+    } else if (errors && errors.length > 0) {
+      const html = errors.map(error => `<span>${error}</span>`).join('');
+      restaurantResult.classList.add('error');
+      restaurantResult.innerHTML = html;
+      return false;
+    }
+
+    return true;
   },
 
   populateFilterForm() {
-    const neighborhoods = [...new Set(this.restaurants.map(r => r.neighborhood))];
-    const cuisines = [...new Set(this.restaurants.map(r => r.cuisine_type))];
-    const { neighborhoodSelect, cuisineSelect } = this.pageElements;
+    const { cuisineFilter, neighborhoodFilter, restaurants } = this.state;
+    const neighborhoods = [...new Set(restaurants.map(r => r.neighborhood))];
+    const cuisines = [...new Set(restaurants.map(r => r.cuisine_type))];
+    const { neighborhoodSelect, cuisineSelect } = this.elements;
 
-    populateSelectBox(neighborhoodSelect, neighborhoods);
-    populateSelectBox(cuisineSelect, cuisines);
+    populateSelectBox(neighborhoodSelect, neighborhoods, neighborhoodFilter);
+    populateSelectBox(cuisineSelect, cuisines, cuisineFilter);
   },
 
   handleFilterUpdates(event) {
-    const { neighborhoodSelect, cuisineSelect } = this.pageElements;
-    const neighborhood = neighborhoodSelect[neighborhoodSelect.selectedIndex].value;
-    const cuisine = cuisineSelect[cuisineSelect.selectedIndex].value;
-
-    DBHelper.fetchRestaurants()
-      .then(restaurants => {
-        if (!restaurants) throw Error('Restaurants could not be displayed');
-
-        restaurants = (cuisine !== 'all') ? 
-          restaurants.filter(r => r.cuisine_type === cuisine) : 
-          restaurants;
-        
-        restaurants = (neighborhood !== 'all') ?
-          restaurants.filter(r => r.neighborhood === neighborhood) :
-          restaurants;
-        
-        this.restaurants = restaurants;
-        this.populateRestaurantsList();
-      })
-      .catch(console.error);
-    
     event.stopPropagation();
+
+    const { neighborhoodSelect, cuisineSelect } = this.elements;
+    const neighborhoodFilter = neighborhoodSelect[neighborhoodSelect.selectedIndex].value;
+    const cuisineFilter = cuisineSelect[cuisineSelect.selectedIndex].value;
+
+    this.setState(() => ({
+      neighborhoodFilter,
+      cuisineFilter
+    }));
   },
 
-  populateRestaurantsList() {
-    if (this.restaurants) {
-      const { restaurantsList, restaurantResultCount } = this.pageElements;
-      const docFrag = document.createDocumentFragment();
-      const rCount = this.restaurants.length;
+  updateMap(restaurants) {
+    if (!this.map) return;
 
-      this.restaurants.forEach(r => {
-        docFrag.appendChild(createRestaurant(r));
-      });
-
-      this.resetRestaurants();
-
-      restaurantsList.appendChild(docFrag);
-      restaurantResultCount.innerHTML = `
-        Displaying <span class="restaurant-count__text">${rCount}</span> 
-        restaurant${rCount === 1 ? '' : 's'}
-      `;
-
-      lazyLoadImages();
-      this.updateMap();
-    }
-  },
-
-  resetRestaurants() {
-    const { restaurantsList, restaurantResultCount } = this.pageElements;
-    restaurantsList.innerHTML = '';
-    restaurantResultCount.innerHTML = 'Displaying <span class="restaurant-count__text">0</span> restaurants';
-  },
-
-  updateMap() {
-    if (!this.map) {
-      return;
-    }
-
-    const markers = this.restaurants.map(r => ({
+    const markers = restaurants.map(r => ({
       position: r.latlng,
       content: `
         <div class="infoWindow">
           <h2 class="infoWindow__title">${r.name}</h2>
           <address class="infoWindow__address">${r.address}</address>
-          <a href="${DBHelper.restaurantUrl(r)}" class="infoWindow__link" title="View more information about ${r.name}">View Details</a>
+          <a href="${DBHelper.restaurantUrl(
+            r.id
+          )}" class="infoWindow__link" title="View more information about ${
+        r.name
+      }">View Details</a>
         </div>
       `
     }));
 
-    this.resetMap();
+    // Reset the map
+    this.map.removeMarkers();
+
+    // Add the new markers
     this.map.addMarkers(markers);
   },
 
-  loadMap() {
-    this.map = new Map(document.querySelector('.map'));
-    this.restaurants && this.updateMap();
+  filterRestaurants() {
+    const { cuisineFilter, neighborhoodFilter, restaurants } = this.state;
+    let filteredRestaurants = [...restaurants];
+
+    if (neighborhoodFilter && neighborhoodFilter !== '') {
+      // Filter restaurants by neighborhood
+      filteredRestaurants = filteredRestaurants.filter(r => r.neighborhood === neighborhoodFilter);
+    }
+
+    if (cuisineFilter && cuisineFilter !== '') {
+      // Filter restaurants by cuisine
+      filteredRestaurants = filteredRestaurants.filter(r => r.cuisine_type === cuisineFilter);
+    }
+
+    return filteredRestaurants;
   },
 
-  resetMap() {
-    this.map && this.map.removeMarkers();
+  populateRestaurantsList() {
+    const { restaurantResult, restaurantsList } = this.elements;
+    const filteredRestaurants = this.filterRestaurants();
+    const rCount = filteredRestaurants && filteredRestaurants.length;
+
+    this.updateMap(filteredRestaurants);
+    restaurantResult.innerHTML = `
+      Displaying <span class="restaurant-count">${rCount}</span>
+      delicious restaurant${rCount === 1 ? '' : 's'}
+    `;
+    restaurantsList.innerHTML = restaurantListHTML(filteredRestaurants);
+    lazyLoadImages();
+  },
+
+  /**
+   * Kicks of rendering the page. It is called whenever the state is updated.
+   */
+  render() {
+    if (this.notLoadingNoErrors()) {
+      // Populate the restaurant filters
+      this.populateFilterForm();
+
+      // Populate the restaurants list and lazy load the images
+      this.populateRestaurantsList();
+    }
   }
 };
 

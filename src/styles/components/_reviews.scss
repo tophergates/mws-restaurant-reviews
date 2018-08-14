@@ -1,57 +1,107 @@
 .restaurant__reviews-container {
-  padding: $spacing-xs;
+  padding: $spacing-sm;
+
+  @media screen and (min-width: $breakpoint-lg) {
+    margin: 0 3rem;
+
+    .review-form__container {
+      float: left;
+      margin-right: $spacing-sm;
+      min-width: 32rem;
+      padding: $spacing-sm;
+
+      .review-form__title {
+        font-size: 1.8rem;
+      }
+    }
+  }
+}
+
+.review-form {
+  .review-form__row {
+    padding: $spacing-xs 0;
+
+    label {
+      font-weight: bold;
+    }
+
+    input,
+    select,
+    textarea {
+      background: transparent;
+      border: 1px solid $textColorDark;
+      font-size: $spacing-md;
+      width: 100%;
+    }
+
+    select {
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      appearance: none;
+      padding: 5px;
+      color: adjust-hue($secondaryLight, 30);
+    }
+
+    textarea {
+      min-height: 15rem;
+    }
+
+    .submit-button {
+      background: $primaryLight;
+      color: $textColorDark;
+      padding: $spacing-xs;
+      width: 100%;
+    }
+  }
 }
 
 .restaurant__reviews {
+  display: grid;
+  grid-row-gap: 3rem;
+  grid-column-gap: 3rem;
+  grid-template-columns: repeat(auto-fill, minmax(32rem, 100%));
+
   .restaurant__review {
     border: 1px solid rgba($textColorDark, 0.25);
     border-radius: $spacing-xs;
     margin-bottom: 2rem;
-  
+
     .review__top {
       background: $textColorDark;
       border-radius: $spacing-xs $spacing-xs 0 0;
       color: $textColorLight;
       padding: $spacing-xs;
-  
+
       .review__username {
         display: inline-block;
         text-transform: uppercase;
         font-size: $spacing-md;
       }
-  
+
       .star-rating {
         float: right;
         margin: 0;
         padding: 0;
       }
     }
-  
+
     .review__body {
       padding: $spacing-xs;
     }
-  
+
     .review__date {
       color: lighten($textColorDark, 25%);
       font-style: italic;
     }
-  
+
     .review__comment {
       margin: $spacing-xs 0;
     }
   }
 
-  @media screen and (min-width: $breakpoint-lg) {
-    display: flex;
-
-    .restaurant__review {
-      flex: 1 1 0;
-      width: calc((100% * 0.3333333) - $spacing-md*2);
-      
-      &:nth-child(3n+2) {
-        margin-left: $spacing-md;
-        margin-right: $spacing-md;
-      }
+  .restaurant__review.offline {
+    .review__top {
+      background: $secondaryDark;
     }
   }
 }

@@ -1,4 +1,5 @@
-import "babel-polyfill";
+import 'babel-polyfill';
+
 import PageController from './js/controllers/PageController';
 import './styles/main.scss';
 

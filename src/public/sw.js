@@ -1,4 +1,4 @@
-const VERSION = 'v7';
+const VERSION = 'v20';
 const RR_CACHE = {
   name: `rr-static-${VERSION}`,
   static: [
@@ -10,18 +10,40 @@ const RR_CACHE = {
     '/favicon-16x16.png',
     '/js/app.min.js',
     '/js/home.min.js',
+    '/js/home~restaurant.min.js',
     '/js/restaurant.min.js',
+    '/js/vendors~home~restaurant.min.js',
     '/images/placeholder.png',
-    '/images/1-small.jpg', '/images/1-medium.jpg', '/images/1-large.jpg',
-    '/images/2-small.jpg', '/images/2-medium.jpg', '/images/2-large.jpg',
-    '/images/3-small.jpg', '/images/3-medium.jpg', '/images/3-large.jpg',
-    '/images/4-small.jpg', '/images/4-medium.jpg', '/images/4-large.jpg',
-    '/images/5-small.jpg', '/images/5-medium.jpg', '/images/5-large.jpg',
-    '/images/6-small.jpg', '/images/6-medium.jpg', '/images/6-large.jpg',
-    '/images/7-small.jpg', '/images/7-medium.jpg', '/images/7-large.jpg',
-    '/images/8-small.jpg', '/images/8-medium.jpg', '/images/8-large.jpg',
-    '/images/9-small.jpg', '/images/9-medium.jpg', '/images/9-large.jpg',
-    '/images/10-small.jpg', '/images/10-medium.jpg', '/images/10-large.jpg',
+    '/images/1-small.jpg',
+    '/images/1-medium.jpg',
+    '/images/1-large.jpg',
+    '/images/2-small.jpg',
+    '/images/2-medium.jpg',
+    '/images/2-large.jpg',
+    '/images/3-small.jpg',
+    '/images/3-medium.jpg',
+    '/images/3-large.jpg',
+    '/images/4-small.jpg',
+    '/images/4-medium.jpg',
+    '/images/4-large.jpg',
+    '/images/5-small.jpg',
+    '/images/5-medium.jpg',
+    '/images/5-large.jpg',
+    '/images/6-small.jpg',
+    '/images/6-medium.jpg',
+    '/images/6-large.jpg',
+    '/images/7-small.jpg',
+    '/images/7-medium.jpg',
+    '/images/7-large.jpg',
+    '/images/8-small.jpg',
+    '/images/8-medium.jpg',
+    '/images/8-large.jpg',
+    '/images/9-small.jpg',
+    '/images/9-medium.jpg',
+    '/images/9-large.jpg',
+    '/images/10-small.jpg',
+    '/images/10-medium.jpg',
+    '/images/10-large.jpg'
   ]
 };
 
@@ -31,53 +53,52 @@ const MAP_CACHE = {
 
 // Trims the given cache down to maxItems
 const trimCache = (cacheName, maxItems) => {
-  caches.open(cacheName)
-    .then(cache => {
-      return cache.keys()
-        .then(keys => {
-          if (keys.length > maxItems) {
-            cache.delete(keys[0])
-              .then(trimCache(cacheName, maxItems));
-          }
-        });
-    })
+  caches.open(cacheName).then(cache => {
+    return cache.keys().then(keys => {
+      if (keys.length > maxItems) {
+        cache.delete(keys[0]).then(trimCache(cacheName, maxItems));
+      }
+    });
+  });
 };
 
 // Checks the cache first or returns the network
 // response if not found
-const cacheThenNetwork = (cacheName, request, { ignoreSearch, trim,  }) => {
+const cacheThenNetwork = (cacheName, request, { ignoreSearch, trim }) => {
   // Open the cache
-  return caches.open(cacheName)
-    .then(cache => {
-      // Look for the requested resource in the cache
-      return cache.match(request.url, { ignoreSearch })
-        .then(cachedResponse => {
-          // Return the cached response if found
-          // otherwise fetch from the network
-          return cachedResponse || fetch(request)
-            .then(networkResponse => {
-              // Check if we need to trim the cache
-              // and do so if necessary
-              if (trim && trim > 0) {
-                trimCache(cacheName, trim);
-              }
-              
-              cache.put(request, networkResponse.clone());
+  return caches.open(cacheName).then(cache => {
+    // Look for the requested resource in the cache
+    return cache.match(request.url, { ignoreSearch }).then(cachedResponse => {
+      // Return the cached response if found
+      // otherwise fetch from the network
+      return (
+        cachedResponse ||
+        fetch(request)
+          .then(networkResponse => {
+            // Check if we need to trim the cache
+            // and do so if necessary
+            if (trim && trim > 0) {
+              trimCache(cacheName, trim);
+            }
 
-              // Add the network response to the cache and return it
-              return networkResponse;
-            })
-            .catch(err => {
-              // If the network request failed, we are probably
-              // offline. TODO: Add a fallback strategy
-            })
-        })
-    })
+            cache.put(request, networkResponse.clone());
+
+            // Add the network response to the cache and return it
+            return networkResponse;
+          })
+          .catch(err => {
+            // If the network request failed, we are probably
+            // offline. TODO: Add a fallback strategy
+          })
+      );
+    });
+  });
 };
 
 self.addEventListener('install', event => {
   event.waitUntil(
-    caches.open(RR_CACHE.name)
+    caches
+      .open(RR_CACHE.name)
       .then(cache => {
         return cache.addAll(RR_CACHE.static);
       })
@@ -89,15 +110,13 @@ self.addEventListener('install', event => {
 
 self.addEventListener('activate', event => {
   event.waitUntil(
-    caches.keys()
+    caches
+      .keys()
       .then(keys => {
         return Promise.all(
           keys
             .filter(k => {
-              return (
-                k !== RR_CACHE.name && 
-                k !== MAP_CACHE.name
-              );
+              return k !== RR_CACHE.name && k !== MAP_CACHE.name;
             })
             .map(k => caches.delete(k))
         );
@@ -129,11 +148,9 @@ self.addEventListener('fetch', event => {
   } else {
     if (event.request.url.includes('tile.openstreetmap.org')) {
       cacheName = MAP_CACHE.name;
-      options.trim = 6;
+      options.trim = 5;
     }
   }
 
-  event.respondWith(
-    cacheThenNetwork(cacheName, event.request, options)
-  );
+  event.respondWith(cacheThenNetwork(cacheName, event.request, options));
 });

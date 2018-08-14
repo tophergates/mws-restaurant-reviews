@@ -6,7 +6,7 @@
   "main": "src/index.js",
   "scripts": {
     "start": "webpack-dev-server --config webpack.dev.js",
-    "build": "webpack --config webpack.prod.js",
+    "build": "webpack -p --config webpack.prod.js",
     "optimize": "gulp"
   },
   "author": "Christopher Gates",
@@ -28,17 +28,17 @@
     "gulp-image-resize": "^0.13.0",
     "gulp-rename": "^1.2.3",
     "html-webpack-plugin": "^3.2.0",
-    "node-sass": "^4.9.0",
+    "node-sass": "^4.9.2",
     "sass-loader": "^7.0.1",
     "style-loader": "^0.21.0",
     "uglify-es": "^3.3.10",
     "webpack": "^4.9.1",
+    "webpack-bundle-analyzer": "^2.13.1",
     "webpack-cli": "^2.1.4",
     "webpack-dev-server": "^3.1.4",
     "webpack-merge": "^4.1.2"
   },
   "dependencies": {
-    "@types/leaflet": "^1.2.7",
     "babel-polyfill": "^6.26.0",
     "dateformat": "^3.0.3",
     "idb": "^2.1.2",
